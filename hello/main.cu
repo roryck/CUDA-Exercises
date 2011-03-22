@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 	cudaMemcpy(d_data, data, SIZE, cudaMemcpyHostToDevice);
 
 	/* call kernel with one block / SIZE threads */
-	hello<<<1, SIZE>>>(d_data);
+	hello_both<<<10,22>>>(d_data, SIZE);
 
 	/* copy data back to host */
 	cudaMemcpy(data, d_data, SIZE, cudaMemcpyDeviceToHost);
