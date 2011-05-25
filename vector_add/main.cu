@@ -26,7 +26,9 @@ int main(int argc, char **argv)
 {
 
 	/* vector length */
-	int len=18000;
+	int len=36781;
+	int blocksPerGrid   = 120;
+	int threadsPerBlock =  64;
 
 	/* data on the CPU to be added */
 	float *h_vec1;
@@ -70,7 +72,7 @@ int main(int argc, char **argv)
 	cudaMemcpy(d_vec2, h_vec2, len*sizeof(float), cudaMemcpyHostToDevice);
 
 	/* call kernel */
-	vec_add<<<16,64>>>(d_vec1, d_vec2, d_vec3, len);
+	vec_add<<<blocksPerGrid, threadsPerBlock>>>(d_vec1, d_vec2, d_vec3, len);
 
 	/* copy data back to host */
 	cudaMemcpy(h_vec3, d_vec3, len*sizeof(float), cudaMemcpyDeviceToHost);
