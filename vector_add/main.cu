@@ -18,15 +18,15 @@
 
 /* function declarations */
 
-void vec_print(float *v, size_t len);
-void vector_add(float *v1, float *v2, float *v3, size_t len);
+void vec_print(float *v, int len);
+void vector_add(float *v1, float *v2, float *v3, int len);
 
 int main(int argc, char **argv)
 {
 
 	/* vector length */
 	int len=8;
-	size_t size=len*sizeof(float);
+	int size=len*sizeof(float);
 
 	/* data on the CPU to be added */
 	float *h_vec1;
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
  * Input vectors: v1, v2
  * Output vector: v3
  */
-void vector_add(float *v1, float *v2, float *v3, size_t len)
+void vector_add(float *v1, float *v2, float *v3, int len)
 {
 	int i;
 	for (i=0; i<len; i++)
@@ -98,7 +98,7 @@ void vector_add(float *v1, float *v2, float *v3, size_t len)
 }
 
 /* routine to print contents of vector */
-void vec_print(float *v, size_t len)
+void vec_print(float *v, int len)
 {
 	int i;
 	for(i=0; i<len; i++)
