@@ -3,13 +3,13 @@ CC        = cc
 NVCCFLAGS = -O2 -DDEBUG -m64
 CFLAGS    = -O2 -DDEBUG
 LDFLAGS   = -O2 -m64
-OBJ       = main.o vec_add.o
+OBJ       = main.o dot_prod.o
 
 .SUFFIXES:
 .SUFFIXES: .o .c .cu
 
-vec_add: $(OBJ)
-	$(NVCC) -o vec_add $(LDFLAGS) $(OBJ)
+dot_prod: $(OBJ)
+	$(NVCC) -o dot_prod $(LDFLAGS) $(OBJ)
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< 
@@ -18,4 +18,4 @@ vec_add: $(OBJ)
 	$(NVCC) -c $(NVCCFLAGS) $<
 
 clean:
-	rm -f vec_add $(OBJ)
+	rm -f dot_prod $(OBJ)

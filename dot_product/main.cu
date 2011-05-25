@@ -15,7 +15,8 @@
 #include <cuda_runtime.h>
 #include <math.h>
 #include "../common/util.h"
-#include "vec_add.h"
+#include "dims.h"
+#include "dot_prod.h"
 
 /* local function declarations */
 void vec_print(float *v, int len);
@@ -25,32 +26,26 @@ float max_diff(float *v1, float *v2, int len);
 int main(int argc, char **argv)
 {
 
-	/* vector length */
-	int len=36781;
-	int blocksPerGrid   = 120;
-	int threadsPerBlock =  64;
-
-	/* data on the CPU to be added */
-	float *h_vec1;
-	float *h_vec2;
-	float *h_vec3;
-	float *result;
+	/* data on the CPU */
+	float *h_vec1;      // input vector 
+	float *h_vec2;      // input vector
+        float *h_part;      // partial result
+	float dp;           // dot product
 
 	/* arrays to hold the vectors on GPU */
-	float *d_vec1;
-	float *d_vec2;
-	float *d_vec3;
+	float *d_vec1;      // input vector
+	float *d_vec2;      // input vector
+	float *d_part;      // partial result
 
 	/* allocate CPU memory */
 	h_vec1 = (float *) malloc(len*sizeof(float));
 	h_vec2 = (float *) malloc(len*sizeof(float));
-	h_vec3 = (float *) malloc(len*sizeof(float));
-	result = (float *) malloc(len*sizeof(float));
+	h_part = (float *) malloc(blocksPerGrid*sizeof(float));
 
 	/* allocate GPU memory */
 	cudaMalloc((void **) &d_vec1, len*sizeof(float));
 	cudaMalloc((void **) &d_vec2, len*sizeof(float));
-	cudaMalloc((void **) &d_vec3, len*sizeof(float));
+	cudaMalloc((void **) &d_part, blocksPerGrid*sizeof(float));
 
 	/* local vars */
 	int idx;
@@ -59,39 +54,43 @@ int main(int argc, char **argv)
         printDevInfo();
 	
 	/* initialize vectors on CPU */
+        /* dot product should sum to */
+        /* len / 2.0                 */
 	for(idx=0; idx<len; idx++){
-		h_vec1[idx] = (float)idx;
-		h_vec2[idx] = (float)(-1 * idx + 1);
+		h_vec1[idx] = 0.5f;
+		h_vec2[idx] = 1.0f;
 	}
-
-	/* perform sum on CPU for validation */
-	vector_add(h_vec1, h_vec2, result, len);
 
         /* copy memory to device array */
 	cudaMemcpy(d_vec1, h_vec1, len*sizeof(float), cudaMemcpyHostToDevice);
 	cudaMemcpy(d_vec2, h_vec2, len*sizeof(float), cudaMemcpyHostToDevice);
 
 	/* call kernel */
-	vec_add<<<blocksPerGrid, threadsPerBlock>>>(d_vec1, d_vec2, d_vec3, len);
+	dot_prod<<<blocksPerGrid, threadsPerBlock>>>(d_vec1, d_vec2, d_part);
 
 	/* copy data back to host */
-	cudaMemcpy(h_vec3, d_vec3, len*sizeof(float), cudaMemcpyDeviceToHost);
+	cudaMemcpy(h_part, d_part, blocksPerGrid*sizeof(float), cudaMemcpyDeviceToHost);
 
-	/* print contents of arrays */
-	if(len <= 20){
-		vec_print(result, len);
-		vec_print(h_vec3, len);
-	}
+	/* complete sum on CPU */
+	dp=0.0;
+	for(idx=0; idx<blocksPerGrid; idx++)
+		dp+=h_part[idx];
+		
+	/* print results */
 	printf("----------------------------------------------\n");
-	printf("Difference between CPU and GPU Results: %6.4f\n", max_diff(result, h_vec3, len));
+	printf("Vector length: %d\n", len);
+	printf("Expected value:   %8.2f\n", ((float)len)/2.0);
+	printf("Calcualted value: %8.2f\n", dp);
         printf("----------------------------------------------\n");
 
 	
         /* clean up memory on host and device */
-	//cudaFree(d_data);
+	cudaFree(d_vec1);
+	cudaFree(d_vec2);
+	cudaFree(d_part);
 	free(h_vec1);
 	free(h_vec2);
-	free(h_vec3);
+	free(h_part);
 
 	return(0);
 }
