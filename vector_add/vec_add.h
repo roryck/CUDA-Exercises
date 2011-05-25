@@ -6,6 +6,5 @@
  * Input:  v1, v2
  * Output: v3
  */
-#include <stdlib.h>
-__global__ void vec_add(float *v1, float *v2, float *v3, size_t len);
+__global__ void vec_add(float *v1, float *v2, float *v3, int len);
 #endif

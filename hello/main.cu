@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda_runtime.h>
-#include "util.h"
+#include "../common/util.h"
 #include "hello.h"
 
 int main(int argc, char **argv)

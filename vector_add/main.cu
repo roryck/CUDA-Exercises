@@ -10,28 +10,28 @@
  * on the GPU.
  * ----------------------------------------------------
  */
-#define SIZE 12
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda_runtime.h>
 #include "../common/util.h"
+#include "vec_add.h"
 
 /* function declarations */
 
-void vec_print(float *v, size_t len);
-void vector_add(float *v1, float *v2, float *v3, size_t len);
+void vec_print(float *v, int len);
+void vector_add(float *v1, float *v2, float *v3, int len);
 
 int main(int argc, char **argv)
 {
 
 	/* vector length */
-	int len=8;
-	size_t size=len*sizeof(float);
+	int len=12;
 
 	/* data on the CPU to be added */
 	float *h_vec1;
 	float *h_vec2;
 	float *h_vec3;
+	float *result;
 
 	/* arrays to hold the vectors on GPU */
 	float *d_vec1;
@@ -42,6 +42,7 @@ int main(int argc, char **argv)
 	h_vec1 = (float *) malloc(len*sizeof(float));
 	h_vec2 = (float *) malloc(len*sizeof(float));
 	h_vec3 = (float *) malloc(len*sizeof(float));
+	result = (float *) malloc(len*sizeof(float));
 
 	/* allocate GPU memory */
 	cudaMalloc((void **) &d_vec1, len*sizeof(float));
@@ -61,18 +62,20 @@ int main(int argc, char **argv)
 	}
 
 	/* perform sum on CPU for validation */
-	vector_add(h_vec1, h_vec2, h_vec3, len);
+	vector_add(h_vec1, h_vec2, result, len);
 
         /* copy memory to device array */
 	cudaMemcpy(d_vec1, h_vec1, len, cudaMemcpyHostToDevice);
 	cudaMemcpy(d_vec2, h_vec2, len, cudaMemcpyHostToDevice);
 
-	/* call kernel with one block / SIZE threads */
+	/* call kernel */
+	vec_add<<<20,20>>>(d_vec1, d_vec2, d_vec3, len);
 
 	/* copy data back to host */
 	cudaMemcpy(h_vec3, d_vec3, len, cudaMemcpyDeviceToHost);
 
-	/* print contents of array */
+	/* print contents of arrays */
+	vec_print(result, len);
 	vec_print(h_vec3, len);
 	
         /* clean up memory on host and device */
@@ -89,7 +92,7 @@ int main(int argc, char **argv)
  * Input vectors: v1, v2
  * Output vector: v3
  */
-void vector_add(float *v1, float *v2, float *v3, size_t len)
+void vector_add(float *v1, float *v2, float *v3, int len)
 {
 	int i;
 	for (i=0; i<len; i++)
@@ -98,7 +101,7 @@ void vector_add(float *v1, float *v2, float *v3, size_t len)
 }
 
 /* routine to print contents of vector */
-void vec_print(float *v, size_t len)
+void vec_print(float *v, int len)
 {
 	int i;
 	for(i=0; i<len; i++)
