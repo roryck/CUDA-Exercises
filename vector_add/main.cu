@@ -25,7 +25,12 @@ int main(int argc, char **argv)
 {
 
 	/* vector length */
+<<<<<<< HEAD
 	int len=12;
+=======
+	int len=8;
+	int size=len*sizeof(float);
+>>>>>>> b8ba910eb14786fcf24a2d73f96ad3eb3e72b15c
 
 	/* data on the CPU to be added */
 	float *h_vec1;
