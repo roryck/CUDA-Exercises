@@ -25,12 +25,7 @@ int main(int argc, char **argv)
 {
 
 	/* vector length */
-<<<<<<< HEAD
-	int len=12;
-=======
-	int len=8;
-	int size=len*sizeof(float);
->>>>>>> b8ba910eb14786fcf24a2d73f96ad3eb3e72b15c
+	int len=22;
 
 	/* data on the CPU to be added */
 	float *h_vec1;
@@ -70,14 +65,14 @@ int main(int argc, char **argv)
 	vector_add(h_vec1, h_vec2, result, len);
 
         /* copy memory to device array */
-	cudaMemcpy(d_vec1, h_vec1, len, cudaMemcpyHostToDevice);
-	cudaMemcpy(d_vec2, h_vec2, len, cudaMemcpyHostToDevice);
+	cudaMemcpy(d_vec1, h_vec1, len*sizeof(float), cudaMemcpyHostToDevice);
+	cudaMemcpy(d_vec2, h_vec2, len*sizeof(float), cudaMemcpyHostToDevice);
 
 	/* call kernel */
-	vec_add<<<20,20>>>(d_vec1, d_vec2, d_vec3, len);
+	vec_add<<<20,22>>>(d_vec1, d_vec2, d_vec3, len);
 
 	/* copy data back to host */
-	cudaMemcpy(h_vec3, d_vec3, len, cudaMemcpyDeviceToHost);
+	cudaMemcpy(h_vec3, d_vec3, len*sizeof(float), cudaMemcpyDeviceToHost);
 
 	/* print contents of arrays */
 	vec_print(result, len);
