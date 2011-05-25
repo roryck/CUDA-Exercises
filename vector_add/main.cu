@@ -13,19 +13,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <cuda_runtime.h>
+#include <math.h>
 #include "../common/util.h"
 #include "vec_add.h"
 
-/* function declarations */
-
+/* local function declarations */
 void vec_print(float *v, int len);
 void vector_add(float *v1, float *v2, float *v3, int len);
+float max_diff(float *v1, float *v2, int len);
 
 int main(int argc, char **argv)
 {
 
 	/* vector length */
-	int len=22;
+	int len=18000;
 
 	/* data on the CPU to be added */
 	float *h_vec1;
@@ -58,7 +59,7 @@ int main(int argc, char **argv)
 	/* initialize vectors on CPU */
 	for(idx=0; idx<len; idx++){
 		h_vec1[idx] = (float)idx;
-		h_vec2[idx] = (float)(idx*idx);
+		h_vec2[idx] = (float)(-1 * idx + 1);
 	}
 
 	/* perform sum on CPU for validation */
@@ -69,14 +70,20 @@ int main(int argc, char **argv)
 	cudaMemcpy(d_vec2, h_vec2, len*sizeof(float), cudaMemcpyHostToDevice);
 
 	/* call kernel */
-	vec_add<<<20,22>>>(d_vec1, d_vec2, d_vec3, len);
+	vec_add<<<16,64>>>(d_vec1, d_vec2, d_vec3, len);
 
 	/* copy data back to host */
 	cudaMemcpy(h_vec3, d_vec3, len*sizeof(float), cudaMemcpyDeviceToHost);
 
 	/* print contents of arrays */
-	vec_print(result, len);
-	vec_print(h_vec3, len);
+	if(len <= 20){
+		vec_print(result, len);
+		vec_print(h_vec3, len);
+	}
+	printf("----------------------------------------------\n");
+	printf("Difference between CPU and GPU Results: %6.4f\n", max_diff(result, h_vec3, len));
+        printf("----------------------------------------------\n");
+
 	
         /* clean up memory on host and device */
 	//cudaFree(d_data);
@@ -87,7 +94,7 @@ int main(int argc, char **argv)
 	return(0);
 }
 
-/* Routine to add 2 vectors of length  len and return the 
+/* Routine to add 2 vectors of length len and return the 
  * result in a third vector.
  * Input vectors: v1, v2
  * Output vector: v3
@@ -107,4 +114,19 @@ void vec_print(float *v, int len)
 	for(i=0; i<len; i++)
 		printf("%6.2f ", v[i]);
 	printf("\n");
+}
+
+/* routine to find the maximum difference  */
+/* between two vectors                     */
+float max_diff(float *v1, float *v2, int len)
+{
+	int i;
+	float abdiff;
+	float maxd = 0.0f;
+
+	for(i=0; i<len; i++){
+		abdiff = abs(v1[i] - v2[i]);
+		if(abdiff > maxd) maxd = abdiff;
+	}
+	return maxd;
 }

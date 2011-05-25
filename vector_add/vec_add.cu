@@ -8,7 +8,8 @@
 __global__ void vec_add(float *v1, float *v2, float *v3, int len)
 {
 	int tid = threadIdx.x + blockIdx.x * blockDim.x;
-	if(tid < len){
+	while(tid < len){
 		v3[tid] = v1[tid] + v2[tid];
+		tid += blockDim.x * gridDim.x;
 	}
 }
