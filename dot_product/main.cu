@@ -1,13 +1,9 @@
-/* hello.cu
- * A Hello World example in CUDA
+/* main.cu 
  * ----------------------------------------------------
- * Example 1 from the summer 2011 Intro to CUDA course 
- * taught at NCAR.  
+ * Main routine for the dot-product example from the 
+ * summer 2011 Intro to CUDA course taught at NCAR.
  * Author: Rory Kelly (rory@ucar.edu)
  * Created: 8 March 2011
- * ----------------------------------------------------
- * Example program showing the summation of two vectors
- * on the GPU.
  * ----------------------------------------------------
  */
 #include <stdio.h>
@@ -19,9 +15,6 @@
 #include "dot_prod.h"
 
 /* local function declarations */
-void vec_print(float *v, int len);
-void vector_add(float *v1, float *v2, float *v3, int len);
-float max_diff(float *v1, float *v2, int len);
 
 int main(int argc, char **argv)
 {
@@ -93,41 +86,4 @@ int main(int argc, char **argv)
 	free(h_part);
 
 	return(0);
-}
-
-/* Routine to add 2 vectors of length len and return the 
- * result in a third vector.
- * Input vectors: v1, v2
- * Output vector: v3
- */
-void vector_add(float *v1, float *v2, float *v3, int len)
-{
-	int i;
-	for (i=0; i<len; i++)
-		v3[i] = v1[i] + v2[i];
-	return;
-}
-
-/* routine to print contents of vector */
-void vec_print(float *v, int len)
-{
-	int i;
-	for(i=0; i<len; i++)
-		printf("%6.2f ", v[i]);
-	printf("\n");
-}
-
-/* routine to find the maximum difference  */
-/* between two vectors                     */
-float max_diff(float *v1, float *v2, int len)
-{
-	int i;
-	float abdiff;
-	float maxd = 0.0f;
-
-	for(i=0; i<len; i++){
-		abdiff = abs(v1[i] - v2[i]);
-		if(abdiff > maxd) maxd = abdiff;
-	}
-	return maxd;
 }
