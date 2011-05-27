@@ -8,8 +8,8 @@ OBJ       = main.o array.o double.o
 .SUFFIXES:
 .SUFFIXES: .o .c .cu
 
-test: $(OBJ)
-	$(NVCC) -o test $(LDFLAGS) $(OBJ)
+matrix_add: $(OBJ)
+	$(NVCC) -o matrix_add $(LDFLAGS) $(OBJ)
 
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< 
@@ -18,4 +18,4 @@ test: $(OBJ)
 	$(NVCC) -c $(NVCCFLAGS) $<
 
 clean:
-	rm -f test $(OBJ)
+	rm -f matrix_add $(OBJ)
