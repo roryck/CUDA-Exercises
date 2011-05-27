@@ -17,12 +17,12 @@ void alloc_2d(float ***array, int nr, int nc);
  * routine to free the memory associted with
  * and array created by alloc_2d
  */
-void dealloc_2d(float **array);
+void dealloc_2d(float ***array);
 
 /* print_2d
  * routine to print the contents of a 2d array 
  */
-void print_2d(float a[size][size], int nr, int nc);
+void print_2d(float **a, int nr, int nc);
 
 void testfun(unsigned int n);
 #endif
