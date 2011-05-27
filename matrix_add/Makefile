@@ -3,7 +3,7 @@ CC        = nvcc
 NVCCFLAGS = -O2 -DDEBUG -m64
 CFLAGS    = -O2 -DDEBUG -m64
 LDFLAGS   = -O2 -m64
-OBJ       = main.o array.o double.o
+OBJ       = main.o array.o matrix_add.o
 
 .SUFFIXES:
 .SUFFIXES: .o .c .cu
