@@ -8,7 +8,7 @@ const int nbins = 10;
 
 /* length of the vectors */
 //const int len             = 234177;
-const int len = 33630;
+const int len = 123456;
 
 /* number of CUDA threads in each block */
 const int threadsPerBlock =  32;

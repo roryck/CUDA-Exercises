@@ -25,12 +25,15 @@ int main(int argc, char **argv)
 	int *gpu_ans;      // final histogram from GPU
 	int *cpu_ans;      // histogram on CPU for validation
 
+	/* locals */
+	int correct;
+
 	/* arrays to hold the vectors on GPU */
 	float *d_data;     // input vector
 	int *d_hist;       // partial result
 
 	/* get some basic info about available devices */
-        //printDevInfo();
+        printDevInfo();
 
 	/* print info about the problem layout */
 	printf("--------------------------------------\n");
@@ -47,6 +50,15 @@ int main(int argc, char **argv)
 	h_hist = (int *) malloc(nbins*blocksPerGrid*sizeof(int));
 	cpu_ans = (int *) malloc(nbins*sizeof(int));
 	gpu_ans = (int *) malloc(nbins*sizeof(int));
+
+	/* initialize histogram arrays */
+	for(int i=0; i<nbins*blocksPerGrid; i++){
+		if(i < nbins){
+			cpu_ans[i]=0;
+			gpu_ans[i]=0;
+		}
+		h_hist[i]=0;
+	}
 
 	/* allocate GPU memory */
 	cudaMalloc((void **) &d_data, len*sizeof(float));
@@ -88,26 +100,34 @@ int main(int argc, char **argv)
 		
 	/* print results */
 	printf("--------------------- Histogram Comparison -----------------------\n");
-	printf("                  CPU:              GPU:\n");
-	printf("[0-1):           %5d             %5d        \n", cpu_ans[0],gpu_ans[0]);
-        printf("[1-2):           %5d             %5d        \n", cpu_ans[1],gpu_ans[1]);
-        printf("[2-3):           %5d             %5d        \n", cpu_ans[2],gpu_ans[2]);
-        printf("[3-4):           %5d             %5d        \n", cpu_ans[3],gpu_ans[3]);
-        printf("[4-5):           %5d             %5d        \n", cpu_ans[4],gpu_ans[4]);
-        printf("[5-6):           %5d             %5d        \n", cpu_ans[5],gpu_ans[5]);
-        printf("[6-7):           %5d             %5d        \n", cpu_ans[6],gpu_ans[6]);
-        printf("[7-8):           %5d             %5d        \n", cpu_ans[7],gpu_ans[7]);
-        printf("[8-9):           %5d             %5d        \n", cpu_ans[8],gpu_ans[8]);
-        printf("[9-10):          %5d             %5d        \n", cpu_ans[9],gpu_ans[9]);
+	printf("                  CPU:              GPU:       \n");
+	printf("[0-1):         %7d           %7d        \n", cpu_ans[0],gpu_ans[0]);
+        printf("[1-2):         %7d           %7d        \n", cpu_ans[1],gpu_ans[1]);
+        printf("[2-3):         %7d           %7d        \n", cpu_ans[2],gpu_ans[2]);
+        printf("[3-4):         %7d           %7d        \n", cpu_ans[3],gpu_ans[3]);
+        printf("[4-5):         %7d           %7d        \n", cpu_ans[4],gpu_ans[4]);
+        printf("[5-6):         %7d           %7d        \n", cpu_ans[5],gpu_ans[5]);
+        printf("[6-7):         %7d           %7d        \n", cpu_ans[6],gpu_ans[6]);
+        printf("[7-8):         %7d           %7d        \n", cpu_ans[7],gpu_ans[7]);
+        printf("[8-9):         %7d           %7d        \n", cpu_ans[8],gpu_ans[8]);
+        printf("[9-10):        %7d           %7d        \n", cpu_ans[9],gpu_ans[9]);
         printf("------------------------------------------------------------------\n");
+	correct=1;
+	for(int i=0; i<nbins; i++)
+		correct *= (cpu_ans[i] == gpu_ans[i]);
+	if(correct)
+		printf("CPU and GPU histograms are the same\n");
+	else
+		printf("Error: CPU and GPU histograms are not the same\n");
+	printf("------------------------------------------------------------------\n");
 
-
-	
         /* clean up memory on host and device */
 	cudaFree(d_data);
 	cudaFree(d_hist);
 	free(h_data);
 	free(h_hist);
+	free(cpu_ans);
+	free(gpu_ans);
 
 	return(0);
 }
