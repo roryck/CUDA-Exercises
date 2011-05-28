@@ -1,6 +1,6 @@
 /* main.cu 
  * ----------------------------------------------------
- * Main routine for the dot-product example from the 
+ * Main routine for the histogram example from the 
  * summer 2011 Intro to CUDA course taught at NCAR.
  * Author: Rory Kelly (rory@ucar.edu)
  * Created: 8 March 2011
@@ -81,7 +81,6 @@ int main(int argc, char **argv)
 	cudaMemcpy(d_data, h_data, len*sizeof(float), cudaMemcpyHostToDevice);
 
 	/* call kernel */
-	//dot_prod<<<blocksPerGrid, threadsPerBlock>>>(d_vec1, d_vec2, d_part);
 	histogram<<<blocksPerGrid, threadsPerBlock>>>(d_data, d_hist);
 
 	/* copy data back to host */

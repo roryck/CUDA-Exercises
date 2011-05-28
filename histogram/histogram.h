@@ -1,12 +1,17 @@
-#ifndef _DOT_PROD_H_
-#define _DOT_PROD_H_
-/* dot_prod.h                                
- * Kernel routine to calculate dot product of
- * 2 vectors of length len.
- * Input:  v1, v2
- * Output: psum
+#ifndef _HISTOGRAM_H_
+#define _HISTOGRAM_H_
+
+/* histogram.cu
+ * Kernel routine to create a histogram from an
+ * array of input data.  Within a given block each
+ * thread creates a private histogram.  The histograms
+ * are then reduced across threads to give one histogram
+ * per block.  The block-level histograms are packed 
+ * into an array an returned to the CPU for the final 
+ * reduction step.
+ * Input:  data
+ * Output: histo
  */
-__global__ void dot_prod(float *v1, float *v2, float *psum);
 __global__ void histogram(float *data, int *histo);
 
 #endif
