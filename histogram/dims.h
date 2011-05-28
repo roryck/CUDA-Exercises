@@ -14,6 +14,6 @@ const int len = 123456;
 const int threadsPerBlock =  32;
 
 /* number of blocks in the grid */
-const int blocksPerGrid   = min(32, (len + threadsPerBlock-1)/threadsPerBlock);
+const int blocksPerGrid   = min(30, (len + threadsPerBlock-1)/threadsPerBlock);
 
 #endif
