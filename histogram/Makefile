@@ -8,10 +8,10 @@ OBJ       = main.o histogram.o
 .SUFFIXES:
 .SUFFIXES: .o .c .cu
 
-histogram: $(OBJ)
+histogram: $(OBJ) 
 	$(NVCC) -o histogram $(LDFLAGS) $(OBJ)
 
-%.o: %.c
+%.o: %.c 
 	$(CC) -c $(CFLAGS) $< 
 
 %.o: %.cu

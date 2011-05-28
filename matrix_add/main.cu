@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 	alloc_2d(&h_data_in2, size, size);
 	alloc_2d(&h_data_out, size, size);
 
-	/* initialize arrays to they sum to the identity matrix */
+	/* initialize arrays so they sum to the identity matrix */
 	for(int i=0; i<size; i++){
 		for(int j=0; j<size; j++){
 			h_data_in1[i][j] = 1.0f + j+i*size;

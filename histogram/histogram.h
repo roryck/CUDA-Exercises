@@ -7,4 +7,6 @@
  * Output: psum
  */
 __global__ void dot_prod(float *v1, float *v2, float *psum);
+__global__ void histogram(float *data, int *histo);
+
 #endif

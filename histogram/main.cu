@@ -19,71 +19,95 @@
 int main(int argc, char **argv)
 {
 
-	/* data on the CPU */
-	float *h_vec1;      // input vector 
-	float *h_vec2;      // input vector
-        float *h_part;      // partial result
-	float dp;           // dot product
+	/* array of floats x: 0.0 <= x < 10.0 */
+	float *h_data;     // arrays with data to create histogram
+	int *h_hist;       // partially reduced histogram of float data
+	int *gpu_ans;      // final histogram from GPU
+	int *cpu_ans;      // histogram on CPU for validation
 
 	/* arrays to hold the vectors on GPU */
-	float *d_vec1;      // input vector
-	float *d_vec2;      // input vector
-	float *d_part;      // partial result
+	float *d_data;     // input vector
+	int *d_hist;       // partial result
+
+	/* get some basic info about available devices */
+        //printDevInfo();
+
+	/* print info about the problem layout */
+	printf("--------------------------------------\n");
+        printf("Creating histogram from %d data points\n", len);
+	printf("Computational Grid Layout:\n");
+        printf("  Threads per block: %d\n", threadsPerBlock);
+        printf("  Blocks per grid:   %d\n", blocksPerGrid);
+        printf("--------------------------------------\n");
 
 	/* allocate CPU memory */
-	h_vec1 = (float *) malloc(len*sizeof(float));
-	h_vec2 = (float *) malloc(len*sizeof(float));
-	h_part = (float *) malloc(blocksPerGrid*sizeof(float));
+	h_data = (float *) malloc(len*sizeof(float));
+	/* Each block will return a histogram.  The CPU will */
+	/* produce the final histogram.                      */
+	h_hist = (int *) malloc(nbins*blocksPerGrid*sizeof(int));
+	cpu_ans = (int *) malloc(nbins*sizeof(int));
+	gpu_ans = (int *) malloc(nbins*sizeof(int));
 
 	/* allocate GPU memory */
-	cudaMalloc((void **) &d_vec1, len*sizeof(float));
-	cudaMalloc((void **) &d_vec2, len*sizeof(float));
-	cudaMalloc((void **) &d_part, blocksPerGrid*sizeof(float));
+	cudaMalloc((void **) &d_data, len*sizeof(float));
+	cudaMalloc((void **) &d_hist, nbins*blocksPerGrid*sizeof(int));
 
-	/* local vars */
-	int idx;
+	/* initialize data on CPU by filling array with */
+	/* random floats between 0 and 10               */
+	srand(555);
+	for(int i=0; i<len; i++){
+		h_data[i] = 10.0f * ((float)rand())/(1.0f + (float)RAND_MAX);
+	}
 
-        /* get some basic info about available devices */
-        printDevInfo();
-	
-	/* initialize vectors on CPU */
-        /* dot product should sum to */
-        /* len / 2.0                 */
-	for(idx=0; idx<len; idx++){
-		h_vec1[idx] = 0.5f;
-		h_vec2[idx] = 1.0f;
+	if(len < 12){
+		printf("data:\n");	
+		for(int i=0; i<len; i++)
+			printf("%8.7f\n",h_data[i]);
 	}
 
         /* copy memory to device array */
-	cudaMemcpy(d_vec1, h_vec1, len*sizeof(float), cudaMemcpyHostToDevice);
-	cudaMemcpy(d_vec2, h_vec2, len*sizeof(float), cudaMemcpyHostToDevice);
+	cudaMemcpy(d_data, h_data, len*sizeof(float), cudaMemcpyHostToDevice);
 
 	/* call kernel */
-	dot_prod<<<blocksPerGrid, threadsPerBlock>>>(d_vec1, d_vec2, d_part);
+	//dot_prod<<<blocksPerGrid, threadsPerBlock>>>(d_vec1, d_vec2, d_part);
+	histogram<<<blocksPerGrid, threadsPerBlock>>>(d_data, d_hist);
 
 	/* copy data back to host */
-	cudaMemcpy(h_part, d_part, blocksPerGrid*sizeof(float), cudaMemcpyDeviceToHost);
+	cudaMemcpy(h_hist, d_hist, nbins*blocksPerGrid*sizeof(int), cudaMemcpyDeviceToHost);
 
-	/* complete sum on CPU */
-	dp=0.0;
-	for(idx=0; idx<blocksPerGrid; idx++)
-		dp+=h_part[idx];
+	/* reduce final histogram on CPU */
+	for(int i=0; i<nbins; i++){
+		for(int j=0; j<blocksPerGrid; j++){
+			gpu_ans[i] += h_hist[i + nbins*j];
+		}
+	}
+
+	/* calculate histogram on CPU for validation */
+	for(int i=0; i<len; i++)
+		cpu_ans[(int)(h_data[i])]++;
 		
 	/* print results */
-	printf("----------------------------------------------\n");
-	printf("Vector length: %d\n", len);
-	printf("Expected value:   %8.2f\n", ((float)len)/2.0);
-	printf("Calcualted value: %8.2f\n", dp);
-        printf("----------------------------------------------\n");
+	printf("--------------------- Histogram Comparison -----------------------\n");
+	printf("                  CPU:              GPU:\n");
+	printf("[0-1):           %5d             %5d        \n", cpu_ans[0],gpu_ans[0]);
+        printf("[1-2):           %5d             %5d        \n", cpu_ans[1],gpu_ans[1]);
+        printf("[2-3):           %5d             %5d        \n", cpu_ans[2],gpu_ans[2]);
+        printf("[3-4):           %5d             %5d        \n", cpu_ans[3],gpu_ans[3]);
+        printf("[4-5):           %5d             %5d        \n", cpu_ans[4],gpu_ans[4]);
+        printf("[5-6):           %5d             %5d        \n", cpu_ans[5],gpu_ans[5]);
+        printf("[6-7):           %5d             %5d        \n", cpu_ans[6],gpu_ans[6]);
+        printf("[7-8):           %5d             %5d        \n", cpu_ans[7],gpu_ans[7]);
+        printf("[8-9):           %5d             %5d        \n", cpu_ans[8],gpu_ans[8]);
+        printf("[9-10):          %5d             %5d        \n", cpu_ans[9],gpu_ans[9]);
+        printf("------------------------------------------------------------------\n");
+
 
 	
         /* clean up memory on host and device */
-	cudaFree(d_vec1);
-	cudaFree(d_vec2);
-	cudaFree(d_part);
-	free(h_vec1);
-	free(h_vec2);
-	free(h_part);
+	cudaFree(d_data);
+	cudaFree(d_hist);
+	free(h_data);
+	free(h_hist);
 
 	return(0);
 }
