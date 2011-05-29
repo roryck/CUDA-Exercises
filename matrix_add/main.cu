@@ -31,16 +31,22 @@ int main(int argc, char **argv)
 	float *d_data2;
 	float *d_out;
 
-	/* for validation of result */
-	float resultTrace;
+	/* local vars */
+	dim3 blockDims;     // used for 2d-indexed kernel
+	float resultTrace;  // used for result validation
 
         /* get some basic info about available devices */
         printDevInfo();
 
 	/* print info about the problem layout */
 	printf("Adding two matrices of size: %d x %d\n", size, size);
+#ifdef ONE_D_INDEX
 	printf("Threads per block: %d\n", threadsPerBlock);
+#else
+	printf("Threads per block: %d (%d x %d)\n", threadsPerBlock, thdsX, thdsY);
+#endif
 	printf("Blocks per grid:   %d\n", blocksPerGrid); 
+	
         printf("--------------------------------------\n");
 	
 	/* allocate and initialize 2d host arrays */
@@ -63,16 +69,30 @@ int main(int argc, char **argv)
 	cudaMalloc(&d_out, size*size*sizeof(float));
 
 	/* transfer data to GPU */
+	/* --- transfer whole matrices --- */
 	cudaMemcpy(d_data1, h_data_in1[0], size*size*sizeof(float), cudaMemcpyHostToDevice);
 	cudaMemcpy(d_data2, h_data_in2[0], size*size*sizeof(float), cudaMemcpyHostToDevice);
+	/* --- or transfer by rows --- */
+	//for(int i=0; i<size; i++){
+	//	cudaMemcpy(&d_data1[i*size], &h_data_in1[0][i*size], size*sizeof(float), cudaMemcpyHostToDevice);
+	//	cudaMemcpy(&d_data2[i*size], &h_data_in2[0][i*size], size*sizeof(float), cudaMemcpyHostToDevice);
+	//}
 
 	/* launch kernel */
-	matrix_add<<<threadsPerBlock,blocksPerGrid>>>(d_data1, d_data2, d_out);
+#ifdef ONE_D_INDEX
+	matrix_add<<<threadsPerBlock,blocksPerGrid>>>(d_data1, d_data2, d_out); // 1d-indexed kernel
+#else
+	blockDims.x = thdsX;
+	blockDims.y = thdsY;
+	matrix_add_2d<<<blockDims,blocksPerGrid>>>(d_data1, d_data2, d_out);       // 2d-indexed kernel
+#endif
 
 	/* transfer data back to CPU */
+        /* --- transfer whole matrices --- */
 	cudaMemcpy(h_data_out[0], d_out, size*size*sizeof(float), cudaMemcpyDeviceToHost);
+	/* --- or transfer by rows --- */
 	//for(int i=0; i<size; i++){
-        //        cudaMemcpy(&h_data_out[0][i], &d_data1[i], size*sizeof(float), cudaMemcpyDeviceToHost);
+        //        cudaMemcpy(&h_data_out[i][0], &d_out[size*i], size*sizeof(float), cudaMemcpyDeviceToHost);
         //}
 
 	/* print contents of arrays if they are small enough */
@@ -89,8 +109,8 @@ int main(int argc, char **argv)
 		resultTrace += h_data_out[i][i];
 
 	/* compare result with expected answer */
-	printf("Expected Trace:   %f\n", (float)size);
-	printf("Calculated Trace: %f\n", resultTrace);
+	printf("Expected Trace:   %6.2f\n", (float)size);
+	printf("Calculated Trace: %6.2f\n", resultTrace);
 	
         /* clean up memory on host and device */
 	dealloc_2d(&h_data_in1);
