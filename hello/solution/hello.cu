@@ -37,5 +37,7 @@ __global__ void hello_thread(char *a, int N)
  */
 __global__ void hello_both(char *a, int N)
 {
-	// insert kernel body here
+        int i = blockDim.x * blockIdx.x + threadIdx.x;
+        if(i < N)
+		a[i] = a[i] + i;
 }
