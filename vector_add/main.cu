@@ -88,7 +88,9 @@ int main(int argc, char **argv)
 
 	
         /* clean up memory on host and device */
-	//cudaFree(d_data);
+	cudaFree(d_vec1);
+	cudaFree(d_vec2);
+	cudaFree(d_vec3);
 	free(h_vec1);
 	free(h_vec2);
 	free(h_vec3);
