@@ -79,6 +79,7 @@ int main(int argc, char **argv)
 
         /* copy memory to device array */
 	cudaMemcpy(d_data, h_data, len*sizeof(float), cudaMemcpyHostToDevice);
+	cudaMemcpy(d_hist, h_hist, nbins*blocksPerGrid*sizeof(int), cudaMemcpyHostToDevice); // copy zero to reset GPU data
 
 	/* call kernel */
 	histogram<<<blocksPerGrid, threadsPerBlock>>>(d_data, d_hist);
