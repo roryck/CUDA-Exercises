@@ -51,7 +51,7 @@ int main(int argc, char **argv)
         /* copy memory to device array */
 	cudaMemcpy(d_data, data, SIZE, cudaMemcpyHostToDevice);
 
-	/* call kernel with one block / SIZE threads */
+	/* call kernel */
         hello_block<<<SIZE, 1>>>(d_data, SIZE);
         //hello_thread<<<1,SIZE>>>(d_data, SIZE);
 	//hello_both<<<4,3>>>(d_data, SIZE);
