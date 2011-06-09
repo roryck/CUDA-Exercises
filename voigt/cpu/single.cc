@@ -126,7 +126,7 @@ int main(int argc, char* argv[])
     int i=0;
     int j=0;
 
-    float voigt_value, faraday_value;
+    float voigt_value;
     float vals;
     float a,b;
     float step = 32.0/PROBLEM_SIZE;
@@ -182,7 +182,7 @@ int main(int argc, char* argv[])
     /*** this is where the magic happens ***/
     for(i=0; i<PROBLEM_SIZE; ++i){
         for(j=0; j<PROBLEM_SIZE; ++j){
-          my_voigt(damping[i][j], offset[i][j], voigt[i][j], faraday_value);
+          my_voigt(damping[i][j], offset[i][j], voigt[i][j]);
         }
     }
 
