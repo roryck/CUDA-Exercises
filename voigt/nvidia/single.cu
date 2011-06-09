@@ -118,12 +118,9 @@ int main(int argc, char* argv[])
     /*** ----  main compute kernel ----- ***/
     /*** this is where the magic happens ***/
     cudaEventRecord(kernel_b, 0);
-    //for(i=0; i<PROBLEM_SIZE; ++i){
-    //    for(j=0; j<PROBLEM_SIZE; ++j){
-    //      my_voigt(h_damp[i*PROBLEM_SIZE+j], h_offs[i*PROBLEM_SIZE+j], &h_vval[i*PROBLEM_SIZE+j], &discard);
-    //    }
-    //}
+
     my_voigt<<<dimGrid, dimBlock>>>(d_damp, d_offs, d_vval);
+
     cudaEventRecord(kernel_e, 0);
     cudaEventSynchronize(kernel_e);
 
@@ -132,6 +129,18 @@ int main(int argc, char* argv[])
     cudaMemcpy((void*) h_vval, (void*) d_vval, memSize, cudaMemcpyDeviceToHost);
     cudaEventRecord(mem_o_e, 0);
     cudaEventSynchronize(mem_o_e); 
+
+    /* print verification values */
+    cout << endl << "Verification values:"<<endl;
+    cout         << "-------------------"<<endl;
+    for(i=PROBLEM_SIZE/2; i<PROBLEM_SIZE/2 + 5; i++){
+       for(j=0; j<2; j++){
+          cout << h_vval[i*PROBLEM_SIZE + j] << " ";
+       }
+       cout << endl;
+    }
+    cout << "-------------------"<<endl;
+
 
     /* print information about elapsed time */
     cudaEventElapsedTime(&mem_i_elapsed, mem_i_b, mem_i_e);
