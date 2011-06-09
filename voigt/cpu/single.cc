@@ -121,6 +121,7 @@ int main(int argc, char* argv[])
     struct timeval stop;
 #endif
     struct timeval result;
+    float t_msec;          // will convert to time in msec
 
     int i=0;
     int j=0;
@@ -192,7 +193,8 @@ int main(int argc, char* argv[])
         return 1;
     }
     timeval_subtract (&result, &usage2.ru_utime, &usage1.ru_utime);
-    cout<<program_name_<<": total user time: "<<result.tv_sec<<" seconds and "<<result.tv_usec<<" microseconds"<<endl;
+    t_msec = (1000.0f * float(result.tv_sec)) + (float(result.tv_usec) / 1000.0f);
+    cout<<program_name_<<": total user time: "<<t_msec<<" msec"<<endl;
 #endif
 #ifdef _VOIGT_WALLTIME_
     if (gettimeofday(&stop, NULL) != 0)
@@ -201,7 +203,8 @@ int main(int argc, char* argv[])
         return 1;
     }
     timeval_subtract(&result, &stop, &start);
-    cout<<program_name_<<": total wallclock time: "<<result.tv_sec<<" seconds and "<<result.tv_usec<<" microseconds"<<endl;
+    t_msec = (1000.0f * float(result.tv_sec)) + (float(result.tv_usec) / 1000.0f);
+    cout<<program_name_<<": total wallclock time: "<<t_msec<<" msec"<<endl;
 #endif
 
 }
