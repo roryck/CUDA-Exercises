@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 	/* --- transfer whole matrices --- */
 	cudaMemcpy(d_data1, h_data_in1[0], size*size*sizeof(float), cudaMemcpyHostToDevice);
 	cudaMemcpy(d_data2, h_data_in2[0], size*size*sizeof(float), cudaMemcpyHostToDevice);
-	cudaMemcpy(d_out, h_data_out[0], size*size*sizeof(float), cudaMemcpyHostToDevice);   // transfer 0 matrix to output array to clear results
+	//cudaMemcpy(d_out, h_data_out[0], size*size*sizeof(float), cudaMemcpyHostToDevice);   // transfer 0 matrix to output array to clear results
 	/* --- or transfer by rows --- */
 	//for(int i=0; i<size; i++){
 	//	cudaMemcpy(&d_data1[i*size], &h_data_in1[0][i*size], size*sizeof(float), cudaMemcpyHostToDevice);

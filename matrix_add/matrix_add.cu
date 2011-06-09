@@ -13,5 +13,9 @@ __global__ void matrix_add(float *m1, float *m2, float *mout)
 
 __global__ void matrix_add_2d(float *m1, float *m2, float *mout)
 {	
-	// insert kernel body here
+	//int tid = threadIdx.x + threadIdx.y * blockDim.x + blockDim.x * blockDim.y * blockIdx.x;
+	//while(tid < size*size){
+	//	mout[tid] = m1[tid]+m2[tid];
+	//	tid += blockDim.x * blockDim.y;
+	//}
 }

@@ -5,7 +5,7 @@
 
 /* for 1d indexed kernel define ONE_D_INDEX macro */
 /* comment out for 2d indexing                    */
-#define ONE_D_INDEX
+//#define ONE_D_INDEX
 
 /* use arrays of dimension size x size */
 const int size = 137;

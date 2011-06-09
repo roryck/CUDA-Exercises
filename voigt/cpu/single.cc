@@ -107,9 +107,6 @@ namespace CSAC
 } // end namespace CSAC
 
 
-//void store_netCDF_file(const string &outfile, int size, vector < vector<float> > &voigt)
-//     throw(string); 
-
 int main(int argc, char* argv[])
 {
     char *program_name_ = argv[0];
@@ -207,20 +204,5 @@ int main(int argc, char* argv[])
     cout<<program_name_<<": total wallclock time: "<<result.tv_sec<<" seconds and "<<result.tv_usec<<" microseconds"<<endl;
 #endif
 
-    try
-    {
-        //store_netCDF_file("voigt.nc", PROBLEM_SIZE, voigt); 
-    }
-    catch (string &s)
-    {
-        cerr<<s<<endl;
-        exit(1);
-    }
-    catch(...)
-    {
-        cerr<<"unknown exception"<<endl;
-        exit(2);
-    }
-    
 }
 
