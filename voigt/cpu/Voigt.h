@@ -44,7 +44,7 @@
     (CSAC::VOIGT::Z6_real * -CSAC::VOIGT::ZZ7_imag + CSAC::VOIGT::Z6_imag * CSAC::VOIGT::ZZ7_real) * \
     CSAC::VOIGT::division_factor;                               \
     voigt_value=CSAC::VOIGT::ZZZ_real;                          \
-    faraday_value=0.5f * CSAC::VOIGT::ivsigno * CSAC::VOIGT::ZZZ_imag; \
+    //faraday_value=0.5f * CSAC::VOIGT::ivsigno * CSAC::VOIGT::ZZZ_imag; \
 }
 
 #endif // Voigt_h_
