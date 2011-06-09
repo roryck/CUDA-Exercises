@@ -1,6 +1,3 @@
-# set the values for compiler, timers and problem_size
-# set compiler to desired compiler (gcc, intel, xlc)
-# set timers to desired timing method (none, user, wall, both) 
 # set problem_size to desired problem size (small, medium, large)
 debug        = false
 problem_size = small
