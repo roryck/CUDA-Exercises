@@ -61,7 +61,6 @@ void my_voigt(const float *damping, const float *frequency_offset, float *voigt_
     __m128 ZZ7_imag;
     __m128 division_factor;
     __m128 ZZZ_real;
-    __m128 ZZZ_imag;
     __m128 damp;
     __m128 offs;
     __m128 vval;
@@ -111,7 +110,6 @@ void my_voigt(const float *damping, const float *frequency_offset, float *voigt_
         ZZ7_imag = _mm_add_ps(_mm_mul_ps(ZZ6_real, V), _mm_mul_ps(ZZ6_imag, damp)); 
         division_factor = _mm_div_ps(one, _mm_add_ps(_mm_mul_ps(ZZ7_real, ZZ7_real), _mm_mul_ps(ZZ7_imag, ZZ7_imag)));
         ZZZ_real = _mm_mul_ps((_mm_add_ps(_mm_mul_ps(Z6_real, ZZ7_real), _mm_mul_ps(Z6_imag, ZZ7_imag))), division_factor); 
-        ZZZ_imag = _mm_mul_ps((_mm_add_ps(_mm_mul_ps(Z6_real, _mm_mul_ps(mone,ZZ7_imag)), _mm_mul_ps(Z6_imag,ZZ7_real))),division_factor);
 
         _mm_stream_ps(&voigt_value[i], ZZZ_real);
     }
@@ -168,7 +166,6 @@ void my_voigt(const float *damping, const float *frequency_offset, float *voigt_
    vector float ZZ7_imag;
    vector float division_factor;
    vector float ZZZ_real;
-   vector float ZZZ_imag;
 
    vector bool int mask;
    const vector float one = (vector float) (1.0f);
@@ -301,7 +298,6 @@ void my_voigt(const float *damping, const float *frequency_offset, float *voigt_
     float ZZ7_imag;
     float division_factor;
     float ZZZ_real;
-    float ZZZ_imag;
 
     register float damp;
     float offs;
@@ -342,12 +338,7 @@ void my_voigt(const float *damping, const float *frequency_offset, float *voigt_
        ZZ7_real = ZZ6_real * damp  - ZZ6_imag * -V    + B0;
        ZZ7_imag = ZZ6_real * -V       + ZZ6_imag * damp;
        division_factor = 1.0f / (ZZ7_real * ZZ7_real + ZZ7_imag * ZZ7_imag);
-       ZZZ_real =
-       (Z6_real * ZZ7_real  + Z6_imag * ZZ7_imag) *
-       division_factor;
-       ZZZ_imag =
-       (Z6_real * -ZZ7_imag + Z6_imag * ZZ7_real) *
-       division_factor;
+       ZZZ_real = (Z6_real * ZZ7_real  + Z6_imag * ZZ7_imag) * division_factor;
        voigt_value[i]=ZZZ_real;
    }
 
