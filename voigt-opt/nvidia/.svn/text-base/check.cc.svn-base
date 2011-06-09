@@ -1,0 +1,158 @@
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include <math.h>
+#include <float.h>
+#include "netcdfcpp.h"
+
+using namespace std;
+
+void  store_netCDF_file(int damping_size, int offset_size,
+                        float *damping, float *offset,
+                        float **voigt) throw(string);
+
+
+int main(int argc, char* argv[])
+{
+
+  int nvar1, nvar2;     // number of variables in files
+  int ndim1, ndim2;     // number of dimensions in files
+  NcVar *vf1, *vf2;     // voigt data in files 1 and 2
+  float *row1, *row2;   // row of values from files 1 and 2
+  NcDim *d0, *d1;       // the zeroth and first dimensions
+
+  if(argc != 3){
+    cerr << " Error: Usage: ./check_voigt file1 file2" << endl;
+    return(-1);
+  }
+
+  /* for error handling */
+  NcError *err = new NcError(NcError::verbose_nonfatal);
+
+  /* get file names */
+  string fname1 = string(argv[1]);
+  string fname2 = string(argv[2]);
+
+  /* open files */
+  NcFile file1 = NcFile(fname1.c_str());
+  if(! file1.is_valid()){
+    cerr << "Error: " << fname1 << " is not a valid NetCDF file" << endl;
+    exit(err->get_err());
+  }
+  NcFile file2 = NcFile(fname2.c_str());
+  if(! file2.is_valid()){
+    cerr << "Error: " << fname2 << " is not a valid NetCDF file" << endl;
+    exit(err->get_err());
+  }
+
+  /* check that variables and dimensions are consistent in both files */
+  nvar1 = file1.num_vars();
+  nvar2 = file2.num_vars();
+  ndim1 = file1.num_dims();
+  ndim2 = file2.num_dims();
+  if(nvar1 != nvar2){
+    cerr << " Error: " << fname1 << " and " << fname2 << " contain different numbers of varibles." << endl;
+    exit(-1);
+  }
+  if(ndim1 != ndim2){
+    cerr << " Error: " << fname1 << " and " << fname2 << " contain different numbers of dimensions." << endl;
+    exit(err->get_err());
+  }
+
+  /* get variables */
+  vf1 = file1.get_var("voigt");
+  if(vf1 == NULL){
+    cout << " Variable voigt not found in file " << fname1 << endl;
+    exit(err->get_err());
+  }
+  vf2 = file2.get_var("voigt");
+  if(vf2 == NULL){
+    cout << " Variable voigt not found in file " << fname1 << endl;
+    exit(err->get_err());
+  }
+
+  /* get dimensions */
+  d0 = vf1->get_dim(0);
+  d1 = vf1->get_dim(1);
+  if(d0 == NULL || d1 == NULL){
+    cout << "Error getting dimensions." << endl;
+    exit(err->get_err());
+  }
+
+  /* allocate space for rows */
+  row1 = new float[d1->size()]; 
+  row2 = new float[d1->size()];
+ 
+  cout << setiosflags(ios::scientific);
+ 
+  float diff, rel_err, avg_rel_err, max_rel_err;
+  float rel_err_cutoff;
+  float FLT_SAFE = 2.0 * FLT_EPSILON;
+  long int npts_err, npts_exclude;
+  
+  /* iterate over the rows */
+  max_rel_err = 0.0f;
+  avg_rel_err = 0.0f;
+  rel_err_cutoff = 0.00001f; // set counting threshold at 0.00001 relative error
+  npts_err = 0;
+  npts_exclude = 0;
+  for(int i=0; i<d0->size(); ++i){
+ 
+    /* get rows */
+    vf1->set_cur(i, 0);
+    vf2->set_cur(i, 0);
+    vf1->get(row1, 1, d1->size());
+    vf2->get(row2, 1, d1->size());
+
+    /* iterate through rows and compare values */
+    for(int j=0; j<d1->size(); ++j){
+      diff = row1[j] - row2[j];
+      if(fabs(row1[j]) >= FLT_SAFE && fabs(row2[j]) >= FLT_SAFE ){ 
+        rel_err = fabs(diff / row1[j]);
+        //if(rel_err > 0.10f){
+        //  cout << "bad point at: x = " << 10.0 + i*32.0/d0->size() << ", y = "<< 10.0 + j*32.0/d1->size() << ", values = " << row1[j] << " " << row2[j]<< endl;  
+        //}
+        avg_rel_err += rel_err;
+        max_rel_err = (rel_err > max_rel_err) ? rel_err : max_rel_err;
+        if(rel_err > rel_err_cutoff)
+          ++npts_err;
+      } else {
+        ++npts_exclude;
+      }
+    } 
+  }
+  avg_rel_err /= (d0->size() * d1->size());
+
+  string max_status, avg_status, exclude_status, npts_status ;
+  
+  /* simple pass fail error tests */
+  if(max_rel_err <= 1.0e-5)
+    max_status = string("                [PASS]");
+  else
+    max_status = string("                [FAIL]");
+  if(avg_rel_err <= 1.0e-6)
+    avg_status = string("                [PASS]");
+  else
+    avg_status = string("                [FAIL]");
+  if(npts_err == 0)
+    npts_status = string("          [PASS]");
+  else
+    npts_status = string("          [FAIL]");
+  if(npts_exclude == 0)
+    exclude_status = string("  [PASS]");
+  else
+    exclude_status = string("  [FAIL]"); 
+
+
+  cout << " Summary of pointwise errors: " << endl;
+  cout << "   Max relative error: " << max_rel_err << max_status << endl;
+  cout << "   Avg relative error: " << avg_rel_err << avg_status << endl; 
+  cout << "   " << npts_err << " points with relative error > 0.00001" << npts_status << endl;
+  cout << "   " << npts_exclude << " points excluded due to numerical limitations" << exclude_status << endl;
+
+  delete err;
+  delete row1;
+  delete row2;
+  return 0;
+}
+

@@ -1,0 +1,68 @@
+# set the values for netcdf, compiler, timers and problem_size
+# set netcdf to path of NetCDF installation
+# set compiler to desired compiler (gcc, intel, xlc)
+# set timers to desired timing method (none, user, wall, both) 
+# set problem_size to desired problem size (small, medium, large)
+debug        = false
+emulate      = false
+netcdf       = /home/rory/netcdf
+problem_size = medium
+output       = true
+timing       = perf
+openmp       = true
+ 
+CC = cc
+CXX = c++
+NVCC = nvcc
+CFLAGS = -O2 -I$(netcdf)/include
+#NVCCFLAGS = -O2 -I/Developer/CUDA/common/inc -I$(netcdf)/include
+NVCCFLAGS = -O2 -I/home/rory/NVIDIA_CUDA_SDK/common/inc -I$(netcdf)/include
+LDFLAGS = -L$(netcdf)/lib -lnetcdf
+
+ifeq ($(debug),true)
+NVCCFLAGS += -g -D_DEBUG
+endif
+ifeq ($(emulate),true)
+NVCCFLAGS += -deviceemu
+LDFLAGS   += -deviceemu
+endif
+ifeq ($(output),true)
+NVCCFLAGS += -DOUTPUT
+endif
+ifeq ($(problem_size),tiny)
+SIZE = -DPROBLEM_SIZE=512
+else ifeq ($(problem_size),small)
+SIZE = -DPROBLEM_SIZE=4096
+else ifeq ($(problem_size),medium)
+SIZE = -DPROBLEM_SIZE=8192
+else ifeq ($(problem_size),large)
+SIZE = -DPROBLEM_SIZE=16384
+endif
+ifeq ($(timing),prof)
+NVCCFLAGS += -D_TIMING_PROF_
+endif
+ifeq ($(openmp),true)
+NVCCFLAGS += -Xcompiler -fopenmp
+LDFLAGS += -lgomp
+endif
+
+objects = single.o voigt.o ransign.o
+chkobjs = check.o
+
+test_voigt: check voigt.h $(objects)
+	$(NVCC) -o test_voigt $(LDFLAGS) $(objects)
+
+check: $(chkobjs)
+	$(CXX) -o check_voigt $(chkobjs) $(LDFLAGS) -lnetcdf_c++ -lnetcdf
+
+%.o: %.cc
+	$(CXX) -c $(CFLAGS) $(SIZE) $(TIMING) $<
+
+%.o: %.c 
+	$(CC) -c $(CFLAGS) $(SIZE) $(TIMING) $<
+
+%.o: %.cu
+	$(NVCC) -c $(NVCCFLAGS) $(SIZE) $(TIMING) $<
+
+clean:
+	rm -f test_voigt check_voigt $(objects) $(chkobjs)
