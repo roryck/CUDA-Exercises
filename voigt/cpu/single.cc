@@ -8,7 +8,6 @@
 #include <limits.h>
 #include <float.h>
 
-//#include "netcdf.h"
 #include "Voigt.h"
 
 // The standard test case sizes
@@ -121,7 +120,8 @@ int main(int argc, char* argv[])
     struct timeval stop;
 #endif
     struct timeval result;
-    float t_msec;          // will convert to time in msec
+    float t_msec_u;          // user time in msec
+    float t_msec_wc;         // wallclock time in msec
 
     int i=0;
     int j=0;
@@ -193,8 +193,7 @@ int main(int argc, char* argv[])
         return 1;
     }
     timeval_subtract (&result, &usage2.ru_utime, &usage1.ru_utime);
-    t_msec = (1000.0f * float(result.tv_sec)) + (float(result.tv_usec) / 1000.0f);
-    cout<<program_name_<<": total user time: "<<t_msec<<" msec"<<endl;
+    t_msec_u = (1000.0f * float(result.tv_sec)) + (float(result.tv_usec) / 1000.0f);
 #endif
 #ifdef _VOIGT_WALLTIME_
     if (gettimeofday(&stop, NULL) != 0)
@@ -203,9 +202,30 @@ int main(int argc, char* argv[])
         return 1;
     }
     timeval_subtract(&result, &stop, &start);
-    t_msec = (1000.0f * float(result.tv_sec)) + (float(result.tv_usec) / 1000.0f);
-    cout<<program_name_<<": total wallclock time: "<<t_msec<<" msec"<<endl;
+    t_msec_wc = (1000.0f * float(result.tv_sec)) + (float(result.tv_usec) / 1000.0f);
 #endif
+
+    // look at a few values:
+    cout << endl << "Verification values:"<<endl;
+    cout         << "-------------------"<<endl;
+    for(i=PROBLEM_SIZE/2; i<PROBLEM_SIZE/2 + 5; i++){
+       for(j=0; j<2; j++){
+          cout << voigt[i][j] << " ";
+       }
+       cout << endl;
+    }
+    cout << "-------------------"<<endl;
+
+
+    // print timing statistics
+#ifdef _VOIGT_USERTIME_
+    cout<<program_name_<<": total user time: "<<t_msec_u<<" msec"<<endl;
+#endif
+#ifdef _VOIGT_WALLTIME_
+    cout<<program_name_<<": total wallclock time: "<<t_msec_wc<<" msec"<<endl;
+#endif
+    cout << "-------------------"<<endl;
+
 
 }
 
