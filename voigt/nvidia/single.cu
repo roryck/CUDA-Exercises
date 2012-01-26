@@ -20,8 +20,15 @@ using namespace std;
 int main(int argc, char* argv[])
 {
     /* events and timing variables */
+    cudaEvent_t mem_i_b, mem_i_e;
+    cudaEvent_t mem_o_b, mem_o_e;
     cudaEvent_t kernel_b, kernel_e;
-    float kernel_elapsed;
+    float mem_i_elapsed, mem_o_elapsed, kernel_elapsed;
+    float mem_total, total;
+    cudaEventCreate(&mem_i_b);
+    cudaEventCreate(&mem_i_e);
+    cudaEventCreate(&mem_o_b);
+    cudaEventCreate(&mem_o_e);
     cudaEventCreate(&kernel_b);
     cudaEventCreate(&kernel_e);
 
@@ -66,8 +73,8 @@ int main(int argc, char* argv[])
     int nthds; // threads per block
     int ntblks; // total number of blocks;
 
-    nthds = ;   // # of threads in a block - won't compile until value is set
-    ntblks = ;  // # of blocks in the grid - won't compile until value is set
+    nthds = 512 ;   // # of threads in a block - won't compile until value is set
+    ntblks = PROBLEM_SIZE*PROBLEM_SIZE/nthds;  // # of blocks in the grid - won't compile until value is set
 
     dim3 dimGrid(ntblks);
     dim3 dimBlock(nthds);
@@ -108,8 +115,11 @@ int main(int argc, char* argv[])
     }
     
     /* transfer data CPU -> GPU */
+    cudaEventRecord(mem_i_b, 0);
     cudaMemcpy((void*) d_damp, (void*) h_damp, memSize, cudaMemcpyHostToDevice);  
     cudaMemcpy((void*) d_offs, (void*) h_offs, memSize, cudaMemcpyHostToDevice);
+    cudaEventRecord(mem_i_e, 0);
+    cudaEventSynchronize(mem_i_e);
 
     /*** ----  main compute kernel ----- ***/
     /*** this is where the magic happens ***/
@@ -121,7 +131,10 @@ int main(int argc, char* argv[])
     cudaEventSynchronize(kernel_e);
 
     /* transfer data GPU -> CPU */
+    cudaEventRecord(mem_o_b, 0);
     cudaMemcpy((void*) h_vval, (void*) d_vval, memSize, cudaMemcpyDeviceToHost);
+    cudaEventRecord(mem_o_e, 0);
+    cudaEventSynchronize(mem_o_e);
 
     /* print verification values */
     cout << endl << "Verification values:"<<endl;
@@ -136,10 +149,19 @@ int main(int argc, char* argv[])
 
 
     /* print information about elapsed time */
+    cudaEventElapsedTime(&mem_i_elapsed, mem_i_b, mem_i_e);
     cudaEventElapsedTime(&kernel_elapsed, kernel_b, kernel_e);
+    cudaEventElapsedTime(&mem_o_elapsed, mem_o_b, mem_o_e);
+    mem_total = mem_i_elapsed + mem_o_elapsed;
+    total = mem_total + kernel_elapsed;
     cout << "-----------------------------------------" << endl;
     cout << "Elapsed times (msec): "<< endl;
+    cout << "    - memory xfer, cpu -> gpu: " << mem_i_elapsed << endl;
+    cout << "    - memory xfer, gpu -> cpu: " << mem_o_elapsed << endl;
+    cout << "    - memory total:            " << mem_total << endl;
     cout << "    - voigt kernel:            " << kernel_elapsed << endl;
+    cout << "    - total:                   " << total << endl;
     cout << "-----------------------------------------" << endl;
+
 
 }

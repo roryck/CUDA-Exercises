@@ -5,8 +5,8 @@
 
 compiler     = intel
 problem_size = small
-openmp       = false
-vector       = none
+openmp       = true
+vector       = sse
 
 # Compiler section
 ifeq ($(compiler),intel)

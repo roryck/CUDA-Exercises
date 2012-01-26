@@ -6,7 +6,7 @@ debug        = false
 emulate      = false
 problem_size = small
 timing       = prof
-openmp       = true
+openmp       = false
  
 CC = nvcc
 CXX = nvcc
