@@ -1,6 +1,5 @@
 #ifndef _ARRAY_H_
 #define _ARRAY_H_
-#include "dims.h"
 /* array.h
  * Utilities used to work with basic arrays in the
  * CUDA Example course.  Array data is assumed to 
