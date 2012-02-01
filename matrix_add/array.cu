@@ -7,7 +7,6 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include "array.h"
-#include "dims.h"
 
 void alloc_2d(float ***array, int nr, int nc)
 {
