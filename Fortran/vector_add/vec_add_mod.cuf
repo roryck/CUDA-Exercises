@@ -1,0 +1,38 @@
+module vec_add_mod
+public
+integer, parameter :: vlen = 36781
+contains
+
+subroutine vec_add(v1, v2, v3)
+implicit none
+  real, dimension(vlen) :: v1, v2, v3
+  v3 = v1 + v2
+end subroutine vec_add
+
+attributes(global) subroutine vec_add_gpu(v1, v2, v3)
+implicit none
+  real, device, dimension(vlen) :: v1, v2
+  real, device, dimension(vlen) :: v3
+  integer :: tid
+  tid = threadIdx%x + (blockIdx%x-1) * blockDim%x
+  do while (tid .le. vlen)
+    v3(tid) = v1(tid) + v2(tid)
+    tid = tid + blockIdx%x * blockDim%x
+  end do
+end subroutine vec_add_gpu
+
+real function max_diff(v1, v2)
+implicit none
+   real, intent(in), dimension(:) :: v1, v2
+   real, dimension(vlen) :: diff
+   integer :: idx
+
+   max_diff=0.0
+   diff(:) = abs(v1(:) - v2(:))
+   do idx=1,vlen
+      if (diff(idx) .gt. max_diff) max_diff = diff(idx)
+   end do
+end function max_diff
+
+
+end module vec_add_mod

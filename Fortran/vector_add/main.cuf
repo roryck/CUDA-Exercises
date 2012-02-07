@@ -1,0 +1,79 @@
+program main
+  use cudafor
+  use vec_add_mod, only : vec_add, vec_add_gpu, max_diff, vlen
+  implicit none
+
+  type(cudadeviceprop) :: prop   ! device properties
+  integer :: numdev, devnum      ! device count, and counter
+  integer :: idx                 ! generic index var
+  integer :: ierr                ! to hold return error codes
+
+  integer, parameter :: blocksPerGrid = 128   ! number of blocks in 1d grid
+  integer, parameter :: threadsPerBlock = 64  ! number of threads in 1d block
+
+  real, allocatable :: hvec1(:), hvec2(:), hvec3(:)         ! data arrays on host
+  real, allocatable, device :: dvec1(:), dvec2(:), dvec3(:) ! data arrays on device
+  real, allocatable :: result(:)                            ! array used for comparison
+
+  ! allocate host vectors
+  allocate(hvec1(vlen))
+  allocate(hvec2(vlen))
+  allocate(hvec3(vlen))
+  allocate(result(vlen))
+
+  ! allocate device vectors
+  allocate(dvec1(vlen))
+  allocate(dvec2(vlen))
+  allocate(dvec3(vlen))
+
+  ! print out some device info
+  ierr = cudaGetDeviceCount(numdev)
+  devnum = 1
+  ierr = cudaSetDevice(devnum)
+  ierr = cudaGetDeviceProperties(prop, devnum)
+  print *, "----------------------------------------------"
+  write(*,'(1x,A17,1x,I1,1X,A20)') "Found", numdev, "CUDA capable devices"
+  write(*,'(1x,A17,1x,A30)') "Using device:", prop%name(1:30)
+  write(*,'(1x,A17,1x,I4)') "Multiprocessors:", prop%multiProcessorCount
+  write(*,'(1x,A17,1x,F6.1,1x,A4)') "Clock Rate:", prop%clockRate/1e3, "MHz"
+  write(*,'(1x,A17,1x,F6.1,1x,A4)') "Global Memory:", prop%totalGlobalMem/1048576.0, "MB"
+
+  ! initialize host vectors
+  do idx=1,vlen
+    hvec1(idx) = real(idx)
+    hvec2(idx) = real(-1 * idx + 1)
+  end do
+
+  ! do the host sum
+  call vec_add(hvec1, hvec2, hvec3)
+
+  ! copy data to the GPU
+  dvec1 = hvec1
+  dvec2 = hvec2
+
+  ! add the vectors on the GPU
+  call vec_add_gpu<<<blocksPerGrid, threadsPerBlock>>>(dvec1, dvec2, dvec3)
+
+  ! copy the results back to the cpu
+  result = dvec3
+
+  ! print out the host vector sum if the arrays are small
+  if(vlen .le. 10) then
+    print *, "Result on cpu: ", hvec3
+    print *, "Result on gpu: ", result
+  end if
+
+  ! print out results check, this should be zero
+  print *, "----------------------------------------------"
+  print *, " Max difference between CPU and GPU result: ", max_diff(hvec3, result)
+  print *, "----------------------------------------------"
+  
+  ! deallocate memory on device and host
+  deallocate(hvec1)
+  deallocate(hvec2)
+  deallocate(hvec3)
+  deallocate(dvec1)
+  deallocate(dvec2)
+  deallocate(dvec3)
+
+end program main
