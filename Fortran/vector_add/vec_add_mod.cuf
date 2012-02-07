@@ -24,14 +24,8 @@ end subroutine vec_add_gpu
 real function max_diff(v1, v2)
 implicit none
    real, intent(in), dimension(:) :: v1, v2
-   real, dimension(vlen) :: diff
-   integer :: idx
 
-   max_diff=0.0
-   diff(:) = abs(v1(:) - v2(:))
-   do idx=1,vlen
-      if (diff(idx) .gt. max_diff) max_diff = diff(idx)
-   end do
+   max_diff = maxval(abs(v1(:) - v2(:)))
 end function max_diff
 
 
