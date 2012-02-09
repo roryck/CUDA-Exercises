@@ -13,37 +13,7 @@
 
 __global__ void histogram(float *data, int *histo)
 {
-	int tid = threadIdx.x + blockIdx.x * blockDim.x;
-	int r_idx;
-	int t_hist[nbins];                              // thread local histogram
-	__shared__ int b_hist[threadsPerBlock][nbins];  // block local histogram
-
-	/* initialize histograms to zero */
-	for(int i=0; i<nbins; i++){
-		t_hist[i] = 0;
-		b_hist[tid][i] = 0;
-	}
-	while(tid < len){
-		t_hist[(int)(data[tid])]++;
-		tid += blockDim.x * gridDim.x;
-	}
-	for(int i=0; i<nbins; i++) b_hist[threadIdx.x][i] = t_hist[i];
-
-	__syncthreads();
-
-	r_idx = blockDim.x / 2;
-	while(r_idx != 0){
-		if(threadIdx.x < r_idx){
-			for(int i=0; i<nbins; i++)
-				b_hist[threadIdx.x][i] += b_hist[threadIdx.x + r_idx][i];
-		}
-		__syncthreads();
-		r_idx /= 2;
-	}
-	if(threadIdx.x == 0){
-		for(int i=0; i<nbins; i++)
-			histo[i + nbins*blockIdx.x] = b_hist[threadIdx.x][i];
-	}
+	// insert kernel body here
 }
 			
 		

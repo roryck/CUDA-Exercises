@@ -90,9 +90,9 @@ int main(int argc, char* argv[])
     size_t memSize = PROBLEM_SIZE*PROBLEM_SIZE*sizeof(float);
 
     /* allocate host memory */
-    h_damp = (float *) malloc(memSize);
-    h_offs = (float *) malloc(memSize);
-    h_vval = (float *) malloc(memSize);
+    cudaMallocHost((void**)&h_damp, memSize);
+    cudaMallocHost((void**)&h_offs, memSize);
+    cudaMallocHost((void**)&h_vval, memSize);
 
     /* allocate device memory */
     cudaMalloc((void**)&d_damp, memSize);
