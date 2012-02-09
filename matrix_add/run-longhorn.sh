@@ -1,6 +1,12 @@
 #!/bin/bash
-# Example submit command: qsub -A 20120209NCAR -V -l h_rt=00:05:00 -P gpgpu -q normal -pe 1way 8 run-longhorn.sh
-
-cd $HOME/CUDA-Exercises/matrix_add
+# Example submit command: qsub run-longhorn.sh
+#$ -A 20120209NCAR
+#$ -V
+#$ -l h_rt=00:05:00
+#$ -cwd
+#$ -j y
+#$ -P gpgpu
+#$ -q normal
+#$ -pe 1way 8
 
 ./matrix_add > matrix_add.out
