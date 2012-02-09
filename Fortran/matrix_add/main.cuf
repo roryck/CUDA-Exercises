@@ -1,0 +1,89 @@
+program main
+  use cudafor
+  implicit none
+
+  integer, parameter :: NX=40
+  integer, parameter :: NY=10
+
+  type(cudadeviceprop) :: prop   ! device properties
+  integer :: numdev, devnum      ! device count, and counter
+  integer :: idx, idy            ! generic index var
+  integer :: ierr                ! to hold return error codes
+
+  integer, parameter :: blocksPerGrid = 128   ! number of blocks in 1d grid
+  integer, parameter :: threadsPerBlock = 64  ! number of threads in 1d block
+
+  real, allocatable :: hmat1(:,:), hmat2(:,:), hmat3(:,:)         ! data arrays on host
+  real, allocatable, device :: dmat1(:,:), dmat2(:,:), dmat3(:,:) ! data arrays on device
+  real, allocatable :: res(:,:)                            ! array used for comparison
+
+  ! allocate host vectors
+  allocate(hmat1(NX,NY))
+  allocate(hmat2(NX,NY))
+  allocate(hmat3(NX,NY))
+  allocate(res(NX,NY))
+
+  ! allocate host vectors
+  allocate(dmat1(NX,NY))
+  allocate(dmat2(NX,NY))
+  allocate(dmat3(NX,NY))
+
+  ! print out some device info
+  ierr = cudaGetDeviceCount(numdev)
+  devnum = 1
+  ierr = cudaSetDevice(devnum)
+  ierr = cudaGetDeviceProperties(prop, devnum)
+  print *, "----------------------------------------------"
+  write(*,'(1x,A17,1x,I1,1X,A20)') "Found", numdev, "CUDA capable devices"
+  write(*,'(1x,A17,1x,A30)') "Using device:", prop%name(1:30)
+  write(*,'(1x,A17,1x,I4)') "Multiprocessors:", prop%multiProcessorCount
+  write(*,'(1x,A17,1x,F6.1,1x,A4)') "Clock Rate:", prop%clockRate/1e3, "MHz"
+  write(*,'(1x,A17,1x,F6.1,1x,A4)') "Global Memory:", prop%totalGlobalMem/1048576.0, "MB"
+
+  ! initialize host vectors
+  do idy=1,NY
+  do idx=1,NX
+    hmat1(idx,idy) = real(idx)
+    hmat2(idx,idy) = real(-1 * idx + 1)
+  end do
+  end do
+
+  ! do the cpu sum
+  hmat3(:,:) = hmat1(:,:) + hmat2(:,:)
+
+  ! transfer input data to gpu
+  dmat1 = hmat1
+  dmat2 = hmat2
+
+  ! do the gpu sum 
+  !$cuf kernel do(1) <<< *, 256>>>
+  do idy=1,NY
+  do idx=1,NX
+    dmat3(idx,idy) = dmat1(idx,idy) + dmat2(idx,idy)
+  end do
+  end do
+
+  ! transfer results back from cpu
+  res = dmat3
+
+  ! print out the host vector sum if the arrays are small
+  if((NX*NY) .le. 100) then
+    print *, "Result on cpu: ", hmat3
+    print *, "Result on gpu: ", res
+  end if
+
+  ! print out results check, this should be zero
+  print *, "----------------------------------------------"
+  print *, " Max difference between CPU and GPU result ", maxval(abs(hmat3-res))
+  print *, "----------------------------------------------"
+  
+  ! deallocate memory on device and host
+  deallocate(hmat1)
+  deallocate(hmat2)
+  deallocate(hmat3)
+  deallocate(res)
+  deallocate(dmat1)
+  deallocate(dmat2)
+  deallocate(dmat3)
+
+end program main
