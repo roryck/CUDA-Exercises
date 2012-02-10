@@ -71,19 +71,22 @@ int main(int argc, char* argv[])
 
     /* configure the problem decomposition */
     int nthds; // threads per block
-    int ntblks; // total number of blocks;
+    int ntblks_x; // blocks in x
+    int ntblks_y; // blocks in y
 
-    nthds = 512 ;   // # of threads in a block - won't compile until value is set
-    ntblks = PROBLEM_SIZE*PROBLEM_SIZE/nthds;  // # of blocks in the grid - won't compile until value is set
+    nthds = 32 ;   // # of threads in a block - won't compile until value is set
+    ntblks_x = PROBLEM_SIZE;  // # of blocks in the grid - won't compile until value is set
+    ntblks_y = PROBLEM_SIZE/nthds;
 
-    dim3 dimGrid(ntblks);
+    dim3 dimGrid(ntblks_x,ntblks_y);
     dim3 dimBlock(nthds);
 
     cout << "GPU Grid Decomposition:" << endl;
     cout << "  " << PROBLEM_SIZE*PROBLEM_SIZE << " total points " << endl;
-    cout << "  " << ntblks << " thread blocks in grid" << endl;
+    cout << "  " << ntblks_x << " thread blocks in X" << endl;
+    cout << "  " << ntblks_y << " thread blocks in Y" << endl;
     cout << "  " << nthds << " threads per block" << endl;
-    
+ 
     /* allocate space on host and device for input and output data */
     float *h_damp, *h_offs, *h_vval;
     float *d_damp, *d_offs, *d_vval;

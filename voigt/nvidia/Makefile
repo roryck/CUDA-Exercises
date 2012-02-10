@@ -5,8 +5,9 @@ problem_size = small
 CC = cc
 CXX = c++
 NVCC = nvcc
-CFLAGS = -O2
-NVCCFLAGS = -O2 -m64
+CFLAGS = -O2 -m64
+NVCCFLAGS = -O2 -m64 
+#NVCCFLAGS = -O2 -m64 -v -Xptxas=-v
 LDFLAGS =  -m64
 
 ifeq ($(debug),true)

@@ -1,23 +1,23 @@
 #include <stdio.h>
 #include "voigt.h"
 
-__global__ void my_voigt(float *damp_arr, float *offs_arr, float *voigt_value){
+/* coefficients of the rational approximation formula */
+  __constant__ float A0 = 122.607931777104326f;
+  __constant__ float A1 = 214.382388694706425f;
+  __constant__ float A2 = 181.928533092181549f;
+  __constant__ float A3 = 93.155580458138441f;
+  __constant__ float A4 = 30.180142196210589f;
+  __constant__ float A5 = 5.912626209773153f;
+  __constant__ float A6 = 0.564189583562615f;
+  __constant__ float B0 = 122.60793177387535f;
+  __constant__ float B1 = 352.730625110963558f;
+  __constant__ float B2 = 457.334478783897737f;
+  __constant__ float B3 = 348.703917719495792f;
+  __constant__ float B4 = 170.354001821091472f;
+  __constant__ float B5 = 53.992906912940207f;
+  __constant__ float B6 = 10.479857114260399f;
 
-  /* coefficients of the rational approximation formula */
-  float A0 = 122.607931777104326f;
-  float A1 = 214.382388694706425f;
-  float A2 = 181.928533092181549f;
-  float A3 = 93.155580458138441f;
-  float A4 = 30.180142196210589f;
-  float A5 = 5.912626209773153f;
-  float A6 = 0.564189583562615f;
-  float B0 = 122.60793177387535f;
-  float B1 = 352.730625110963558f;
-  float B2 = 457.334478783897737f;
-  float B3 = 348.703917719495792f;
-  float B4 = 170.354001821091472f;
-  float B5 = 53.992906912940207f;
-  float B6 = 10.479857114260399f;
+__global__ void my_voigt(float *damp_arr, float *offs_arr, float *voigt_value){
 
   int ivsigno;
   float V;
@@ -51,7 +51,8 @@ __global__ void my_voigt(float *damp_arr, float *offs_arr, float *voigt_value){
   float ZZZ_real;
 
   /* calculate thread index */
-  int idx = blockDim.x * blockIdx.x + threadIdx.x;
+  //int idx = blockDim.x * blockIdx.x + threadIdx.x;
+  int idx = gridDim.x * blockDim.x * blockIdx.y + blockDim.x * blockIdx.x + threadIdx.x;
 
   /* get local values of damping and offset */
   float damping = damp_arr[idx];
