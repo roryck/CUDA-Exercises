@@ -67,9 +67,11 @@ int main(int argc, char* argv[])
     int ntblks_x; // blocks in x
     int ntblks_y; // blocks in y
 
-    nthds = 32 ;   // # of threads in a block - won't compile until value is set
-    ntblks_x = PROBLEM_SIZE;  // # of blocks in the grid - won't compile until value is set
-    ntblks_y = PROBLEM_SIZE/nthds;
+    /*  The three values below control the thread block / grid layout */
+    /*  They must be set before the program can be compiled           */
+    nthds = 32 ;                    // # of threads in a block
+    ntblks_x = PROBLEM_SIZE;        // # of blocks in the grid in X
+    ntblks_y = PROBLEM_SIZE/nthds;  // # of blocks in the grid in Y
 
     dim3 dimGrid(ntblks_x,ntblks_y);
     dim3 dimBlock(nthds);
