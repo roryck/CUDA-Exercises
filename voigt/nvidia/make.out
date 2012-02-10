@@ -1,0 +1,61 @@
+nvcc -c -O2 -m64  -v -Xptxas=-v -DPROBLEM_SIZE=4096  single.cu
+#$ _SPACE_= 
+#$ _CUDART_=cudart
+#$ _HERE_=/opt/apps/cuda/4.0/cuda/bin
+#$ _THERE_=/opt/apps/cuda/4.0/cuda/bin
+#$ _TARGET_SIZE_=64
+#$ TOP=/opt/apps/cuda/4.0/cuda/bin/..
+#$ LD_LIBRARY_PATH=/opt/apps/cuda/4.0/cuda/bin/../lib:/opt/apps/cuda/4.0/cuda/bin/../extools/lib:/opt/apps/cuda/4.0/cuda/lib64:/opt/apps/intel11_1/mvapich2/1.4/lib:/opt/apps/intel11_1/mvapich2/1.4/lib/shared:/opt/apps/intel/11.1/lib/intel64:/opt/gsi-openssh-5.8p2/lib:/opt/apps/cuda/4.0/cuda/computeprof/bin
+#$ PATH=/opt/apps/cuda/4.0/cuda/bin/../open64/bin:/opt/apps/cuda/4.0/cuda/bin:/opt/apps/cuda/4.0/cuda/bin:/opt/apps/intel11_1/mvapich2/1.4/bin:/opt/apps/tightvnc/1.3.10/bin:/opt/apps/intel/11.1/bin/intel64:/usr/local/first:/opt/sge6.2/bin/lx24-amd64:/usr/kerberos/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/gsi-openssh-5.8p2/bin:/usr/X11R6/bin:/opt/ofed/bin:/opt/ofed/sbin:/opt/rocks/bin:/opt/rocks/sbin:/opt/dell/srvadmin/bin:/usr/local/bin:/share/sge6.2/default/pe_scripts:.:/opt/apps/pki_apps:/opt/apps/cuda/4.0/cuda/computeprof/bin
+#$ INCLUDES="-I/opt/apps/cuda/4.0/cuda/bin/../include" "-I/opt/apps/cuda/4.0/cuda/bin/../include/cudart"  
+#$ LIBRARIES=  "-L/opt/apps/cuda/4.0/cuda/bin/../lib64" -lcudart
+#$ CUDAFE_FLAGS=
+#$ OPENCC_FLAGS=
+#$ PTXAS_FLAGS=
+#$ gcc -D__CUDA_ARCH__=100 -E -x c++ -DCUDA_NO_SM_13_DOUBLE_INTRINSICS  -DCUDA_FLOAT_MATH_FUNCTIONS -DCUDA_NO_SM_11_ATOMIC_INTRINSICS -DCUDA_NO_SM_12_ATOMIC_INTRINSICS  -D__CUDACC__ -C  -O2 "-I/opt/apps/cuda/4.0/cuda/bin/../include" "-I/opt/apps/cuda/4.0/cuda/bin/../include/cudart"   -D"PROBLEM_SIZE=4096" -include "cuda_runtime.h" -m64 -o "/tmp/tmpxft_000026aa_00000000-4_single.cpp1.ii" "single.cu" 
+#$ cudafe --m64 --gnu_version=40102 -tused --no_remove_unneeded_entities  --gen_c_file_name "/tmp/tmpxft_000026aa_00000000-1_single.cudafe1.c" --stub_file_name "/tmp/tmpxft_000026aa_00000000-1_single.cudafe1.stub.c" --gen_device_file_name "/tmp/tmpxft_000026aa_00000000-1_single.cudafe1.gpu" --include_file_name "/tmp/tmpxft_000026aa_00000000-3_single.fatbin.c" "/tmp/tmpxft_000026aa_00000000-4_single.cpp1.ii" 
+#$ gcc -D__CUDA_ARCH__=100 -E -x c -DCUDA_NO_SM_13_DOUBLE_INTRINSICS  -DCUDA_FLOAT_MATH_FUNCTIONS -DCUDA_NO_SM_11_ATOMIC_INTRINSICS -DCUDA_NO_SM_12_ATOMIC_INTRINSICS  -D__CUDACC__ -C  -O2 -D__CUDA_FTZ "-I/opt/apps/cuda/4.0/cuda/bin/../include" "-I/opt/apps/cuda/4.0/cuda/bin/../include/cudart"   -m64 -o "/tmp/tmpxft_000026aa_00000000-5_single.cpp2.i" "/tmp/tmpxft_000026aa_00000000-1_single.cudafe1.gpu" 
+#$ cudafe --m64 --gnu_version=40102 --c  --gen_c_file_name "/tmp/tmpxft_000026aa_00000000-6_single.cudafe2.c" --stub_file_name "/tmp/tmpxft_000026aa_00000000-6_single.cudafe2.stub.c" --gen_device_file_name "/tmp/tmpxft_000026aa_00000000-6_single.cudafe2.gpu" --include_file_name "/tmp/tmpxft_000026aa_00000000-3_single.fatbin.c" "/tmp/tmpxft_000026aa_00000000-5_single.cpp2.i" 
+#$ gcc -D__CUDA_ARCH__=100 -E -x c -DCUDA_NO_SM_13_DOUBLE_INTRINSICS  -DCUDA_FLOAT_MATH_FUNCTIONS -DCUDA_NO_SM_11_ATOMIC_INTRINSICS -DCUDA_NO_SM_12_ATOMIC_INTRINSICS  -D__CUDABE__  -O2 -D__CUDA_FTZ "-I/opt/apps/cuda/4.0/cuda/bin/../include" "-I/opt/apps/cuda/4.0/cuda/bin/../include/cudart"   -m64 -o "/tmp/tmpxft_000026aa_00000000-7_single.cpp3.i" "/tmp/tmpxft_000026aa_00000000-6_single.cudafe2.gpu" 
+#$ filehash -s "-v  " "/tmp/tmpxft_000026aa_00000000-7_single.cpp3.i" > "/tmp/tmpxft_000026aa_00000000-8_single.hash"
+#$ gcc -E -x c++ -D__CUDACC__ -C  -O2 "-I/opt/apps/cuda/4.0/cuda/bin/../include" "-I/opt/apps/cuda/4.0/cuda/bin/../include/cudart"   -D"PROBLEM_SIZE=4096" -include "cuda_runtime.h" -m64 -o "/tmp/tmpxft_000026aa_00000000-9_single.cpp4.ii" "single.cu" 
+#$ cudafe++ --m64 --gnu_version=40102 --parse_templates  --gen_c_file_name "/tmp/tmpxft_000026aa_00000000-1_single.cudafe1.cpp" --stub_file_name "/tmp/tmpxft_000026aa_00000000-1_single.cudafe1.stub.c" "/tmp/tmpxft_000026aa_00000000-9_single.cpp4.ii" 
+#$ nvopencc  -TARG:compute_10 -m64 -OPT:ftz=1 -CG:ftz=1 -CG:prec_div=0 -CG:prec_sqrt=0  "/tmp/tmpxft_000026aa_00000000-10_single" "/tmp/tmpxft_000026aa_00000000-7_single.cpp3.i"  -o "/tmp/tmpxft_000026aa_00000000-2_single.ptx"
+#$ ptxas  -arch=sm_10 -m64 -v  "/tmp/tmpxft_000026aa_00000000-2_single.ptx"  -o "/tmp/tmpxft_000026aa_00000000-11_single.sm_10.cubin" 
+ptxas info    : Compiling entry function '__cuda_dummy_entry__' for 'sm_10'
+ptxas info    : Used 0 registers
+#$ fatbinary --create="/tmp/tmpxft_000026aa_00000000-3_single.fatbin" --key="503f8bfbe5a41faf" --ident="single.cu" --cmdline="-v  " -cuda "--image=profile=compute_10,file=/tmp/tmpxft_000026aa_00000000-2_single.ptx" "--image=profile=sm_10,file=/tmp/tmpxft_000026aa_00000000-11_single.sm_10.cubin" --embedded-fatbin="/tmp/tmpxft_000026aa_00000000-3_single.fatbin.c" 
+#$ rm /tmp/tmpxft_000026aa_00000000-3_single.fatbin
+#$ gcc -D__CUDA_ARCH__=100 -E -x c++ -DCUDA_NO_SM_13_DOUBLE_INTRINSICS  -DCUDA_FLOAT_MATH_FUNCTIONS -DCUDA_NO_SM_11_ATOMIC_INTRINSICS -DCUDA_NO_SM_12_ATOMIC_INTRINSICS   -O2 -D__CUDA_FTZ "-I/opt/apps/cuda/4.0/cuda/bin/../include" "-I/opt/apps/cuda/4.0/cuda/bin/../include/cudart"   -m64 -o "/tmp/tmpxft_000026aa_00000000-12_single.ii" "/tmp/tmpxft_000026aa_00000000-1_single.cudafe1.cpp" 
+#$ gcc -c -x c++ -O2 "-I/opt/apps/cuda/4.0/cuda/bin/../include" "-I/opt/apps/cuda/4.0/cuda/bin/../include/cudart"   -fpreprocessed -m64 -o "single.o" "/tmp/tmpxft_000026aa_00000000-12_single.ii" 
+nvcc -c -O2 -m64  -v -Xptxas=-v -DPROBLEM_SIZE=4096  voigt.cu
+#$ _SPACE_= 
+#$ _CUDART_=cudart
+#$ _HERE_=/opt/apps/cuda/4.0/cuda/bin
+#$ _THERE_=/opt/apps/cuda/4.0/cuda/bin
+#$ _TARGET_SIZE_=64
+#$ TOP=/opt/apps/cuda/4.0/cuda/bin/..
+#$ LD_LIBRARY_PATH=/opt/apps/cuda/4.0/cuda/bin/../lib:/opt/apps/cuda/4.0/cuda/bin/../extools/lib:/opt/apps/cuda/4.0/cuda/lib64:/opt/apps/intel11_1/mvapich2/1.4/lib:/opt/apps/intel11_1/mvapich2/1.4/lib/shared:/opt/apps/intel/11.1/lib/intel64:/opt/gsi-openssh-5.8p2/lib:/opt/apps/cuda/4.0/cuda/computeprof/bin
+#$ PATH=/opt/apps/cuda/4.0/cuda/bin/../open64/bin:/opt/apps/cuda/4.0/cuda/bin:/opt/apps/cuda/4.0/cuda/bin:/opt/apps/intel11_1/mvapich2/1.4/bin:/opt/apps/tightvnc/1.3.10/bin:/opt/apps/intel/11.1/bin/intel64:/usr/local/first:/opt/sge6.2/bin/lx24-amd64:/usr/kerberos/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/gsi-openssh-5.8p2/bin:/usr/X11R6/bin:/opt/ofed/bin:/opt/ofed/sbin:/opt/rocks/bin:/opt/rocks/sbin:/opt/dell/srvadmin/bin:/usr/local/bin:/share/sge6.2/default/pe_scripts:.:/opt/apps/pki_apps:/opt/apps/cuda/4.0/cuda/computeprof/bin
+#$ INCLUDES="-I/opt/apps/cuda/4.0/cuda/bin/../include" "-I/opt/apps/cuda/4.0/cuda/bin/../include/cudart"  
+#$ LIBRARIES=  "-L/opt/apps/cuda/4.0/cuda/bin/../lib64" -lcudart
+#$ CUDAFE_FLAGS=
+#$ OPENCC_FLAGS=
+#$ PTXAS_FLAGS=
+#$ gcc -D__CUDA_ARCH__=100 -E -x c++ -DCUDA_NO_SM_13_DOUBLE_INTRINSICS  -DCUDA_FLOAT_MATH_FUNCTIONS -DCUDA_NO_SM_11_ATOMIC_INTRINSICS -DCUDA_NO_SM_12_ATOMIC_INTRINSICS  -D__CUDACC__ -C  -O2 "-I/opt/apps/cuda/4.0/cuda/bin/../include" "-I/opt/apps/cuda/4.0/cuda/bin/../include/cudart"   -D"PROBLEM_SIZE=4096" -include "cuda_runtime.h" -m64 -o "/tmp/tmpxft_00002e96_00000000-4_voigt.cpp1.ii" "voigt.cu" 
+#$ cudafe --m64 --gnu_version=40102 -tused --no_remove_unneeded_entities  --gen_c_file_name "/tmp/tmpxft_00002e96_00000000-1_voigt.cudafe1.c" --stub_file_name "/tmp/tmpxft_00002e96_00000000-1_voigt.cudafe1.stub.c" --gen_device_file_name "/tmp/tmpxft_00002e96_00000000-1_voigt.cudafe1.gpu" --include_file_name "/tmp/tmpxft_00002e96_00000000-3_voigt.fatbin.c" "/tmp/tmpxft_00002e96_00000000-4_voigt.cpp1.ii" 
+#$ gcc -D__CUDA_ARCH__=100 -E -x c -DCUDA_NO_SM_13_DOUBLE_INTRINSICS  -DCUDA_FLOAT_MATH_FUNCTIONS -DCUDA_NO_SM_11_ATOMIC_INTRINSICS -DCUDA_NO_SM_12_ATOMIC_INTRINSICS  -D__CUDACC__ -C  -O2 -D__CUDA_FTZ "-I/opt/apps/cuda/4.0/cuda/bin/../include" "-I/opt/apps/cuda/4.0/cuda/bin/../include/cudart"   -m64 -o "/tmp/tmpxft_00002e96_00000000-5_voigt.cpp2.i" "/tmp/tmpxft_00002e96_00000000-1_voigt.cudafe1.gpu" 
+#$ cudafe --m64 --gnu_version=40102 --c  --gen_c_file_name "/tmp/tmpxft_00002e96_00000000-6_voigt.cudafe2.c" --stub_file_name "/tmp/tmpxft_00002e96_00000000-6_voigt.cudafe2.stub.c" --gen_device_file_name "/tmp/tmpxft_00002e96_00000000-6_voigt.cudafe2.gpu" --include_file_name "/tmp/tmpxft_00002e96_00000000-3_voigt.fatbin.c" "/tmp/tmpxft_00002e96_00000000-5_voigt.cpp2.i" 
+#$ gcc -D__CUDA_ARCH__=100 -E -x c -DCUDA_NO_SM_13_DOUBLE_INTRINSICS  -DCUDA_FLOAT_MATH_FUNCTIONS -DCUDA_NO_SM_11_ATOMIC_INTRINSICS -DCUDA_NO_SM_12_ATOMIC_INTRINSICS  -D__CUDABE__  -O2 -D__CUDA_FTZ "-I/opt/apps/cuda/4.0/cuda/bin/../include" "-I/opt/apps/cuda/4.0/cuda/bin/../include/cudart"   -m64 -o "/tmp/tmpxft_00002e96_00000000-7_voigt.cpp3.i" "/tmp/tmpxft_00002e96_00000000-6_voigt.cudafe2.gpu" 
+#$ filehash -s "-v  " "/tmp/tmpxft_00002e96_00000000-7_voigt.cpp3.i" > "/tmp/tmpxft_00002e96_00000000-8_voigt.hash"
+#$ gcc -E -x c++ -D__CUDACC__ -C  -O2 "-I/opt/apps/cuda/4.0/cuda/bin/../include" "-I/opt/apps/cuda/4.0/cuda/bin/../include/cudart"   -D"PROBLEM_SIZE=4096" -include "cuda_runtime.h" -m64 -o "/tmp/tmpxft_00002e96_00000000-9_voigt.cpp4.ii" "voigt.cu" 
+#$ cudafe++ --m64 --gnu_version=40102 --parse_templates  --gen_c_file_name "/tmp/tmpxft_00002e96_00000000-1_voigt.cudafe1.cpp" --stub_file_name "/tmp/tmpxft_00002e96_00000000-1_voigt.cudafe1.stub.c" "/tmp/tmpxft_00002e96_00000000-9_voigt.cpp4.ii" 
+#$ nvopencc  -TARG:compute_10 -m64 -OPT:ftz=1 -CG:ftz=1 -CG:prec_div=0 -CG:prec_sqrt=0  "/tmp/tmpxft_00002e96_00000000-10_voigt" "/tmp/tmpxft_00002e96_00000000-7_voigt.cpp3.i"  -o "/tmp/tmpxft_00002e96_00000000-2_voigt.ptx"
+#$ ptxas  -arch=sm_10 -m64 -v  "/tmp/tmpxft_00002e96_00000000-2_voigt.ptx"  -o "/tmp/tmpxft_00002e96_00000000-11_voigt.sm_10.cubin" 
+ptxas info    : Compiling entry function '_Z8my_voigtPfS_S_' for 'sm_10'
+ptxas info    : Used 10 registers, 24+16 bytes smem, 56 bytes cmem[0], 4 bytes cmem[1]
+#$ fatbinary --create="/tmp/tmpxft_00002e96_00000000-3_voigt.fatbin" --key="871649c257fd3b41" --ident="voigt.cu" --cmdline="-v  " -cuda "--image=profile=compute_10,file=/tmp/tmpxft_00002e96_00000000-2_voigt.ptx" "--image=profile=sm_10,file=/tmp/tmpxft_00002e96_00000000-11_voigt.sm_10.cubin" --embedded-fatbin="/tmp/tmpxft_00002e96_00000000-3_voigt.fatbin.c" 
+#$ rm /tmp/tmpxft_00002e96_00000000-3_voigt.fatbin
+#$ gcc -D__CUDA_ARCH__=100 -E -x c++ -DCUDA_NO_SM_13_DOUBLE_INTRINSICS  -DCUDA_FLOAT_MATH_FUNCTIONS -DCUDA_NO_SM_11_ATOMIC_INTRINSICS -DCUDA_NO_SM_12_ATOMIC_INTRINSICS   -O2 -D__CUDA_FTZ "-I/opt/apps/cuda/4.0/cuda/bin/../include" "-I/opt/apps/cuda/4.0/cuda/bin/../include/cudart"   -m64 -o "/tmp/tmpxft_00002e96_00000000-12_voigt.ii" "/tmp/tmpxft_00002e96_00000000-1_voigt.cudafe1.cpp" 
+#$ gcc -c -x c++ -O2 "-I/opt/apps/cuda/4.0/cuda/bin/../include" "-I/opt/apps/cuda/4.0/cuda/bin/../include/cudart"   -fpreprocessed -m64 -o "voigt.o" "/tmp/tmpxft_00002e96_00000000-12_voigt.ii" 
+nvcc -o test_voigt -m64 single.o voigt.o

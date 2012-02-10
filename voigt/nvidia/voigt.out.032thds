@@ -1,0 +1,46 @@
+
+Found 2 CUDA devices:
+  CUDA Device 0 - Quadroplex 2200 S4
+    Clock rate:                  1296.00 MHz
+    Global memory:                  4095 MB
+    Constant memory:                  64 KB
+    Shared memory per block:          16 KB
+    Registers per block:           16384   
+    Warp Size:                        32 
+    Max Threads per block:           512   
+    Max Block Dims (X  Y  Z):        512    512     64
+    Max Grid Dims (X  Y  Z):       65535  65535      1
+
+  CUDA Device 1 - Quadroplex 2200 S4
+    Clock rate:                  1296.00 MHz
+    Global memory:                  4095 MB
+    Constant memory:                  64 KB
+    Shared memory per block:          16 KB
+    Registers per block:           16384   
+    Warp Size:                        32 
+    Max Threads per block:           512   
+    Max Block Dims (X  Y  Z):        512    512     64
+    Max Grid Dims (X  Y  Z):       65535  65535      1
+
+GPU Grid Decomposition:
+  16777216 total points 
+  4096 thread blocks in X
+  128 thread blocks in Y
+  32 threads per block
+
+Verification values:
+-------------------
+0.0188893 0.0188855 
+0.0188851 0.0188813 
+0.0188809 0.0188771 
+0.0188767 0.0188729 
+0.0188725 0.0188687 
+-------------------
+-----------------------------------------
+Elapsed times (msec): 
+    - memory xfer, cpu -> gpu: 42.9457
+    - memory xfer, gpu -> cpu: 20.0601
+    - memory total:            63.0058
+    - voigt kernel:            5.5481
+    - total:                   68.5539
+-----------------------------------------
