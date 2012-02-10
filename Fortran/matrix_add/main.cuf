@@ -2,8 +2,8 @@ program main
   use cudafor
   implicit none
 
-  integer, parameter :: NX=40
-  integer, parameter :: NY=10
+  integer, parameter :: NX=303
+  integer, parameter :: NY=13
 
   type(cudadeviceprop) :: prop   ! device properties
   integer :: numdev, devnum      ! device count, and counter
@@ -56,7 +56,10 @@ program main
   dmat2 = hmat2
 
   ! do the gpu sum 
-  !$cuf kernel do(1) <<< *, 256>>>
+  !
+  ! insert compiler directive here to generate
+  ! a CUDA kernel for matrix addition
+  !
   do idy=1,NY
   do idx=1,NX
     dmat3(idx,idy) = dmat1(idx,idy) + dmat2(idx,idy)
