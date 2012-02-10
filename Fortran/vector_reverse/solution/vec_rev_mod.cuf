@@ -1,0 +1,26 @@
+module vec_rev_mod
+public
+integer, parameter :: vlen = 333 
+contains
+
+attributes(global) subroutine vec_rev_gpu(v1,v2)
+implicit none
+  integer, intent(in), device, dimension(vlen) :: v1
+  integer, intent(out), device, dimension(vlen) :: v2
+  integer :: tid
+  tid = threadIdx%x + (blockIdx%x-1) * blockDim%x
+  do while (tid .le. vlen)
+    v2(tid) = v1(1+vlen-tid)
+    tid = tid + blockIdx%x * blockDim%x
+  end do
+end subroutine vec_rev_gpu
+
+integer function max_diff(v1, v2)
+implicit none
+   integer, intent(in), dimension(:) :: v1, v2
+
+   max_diff = maxval(abs(v1(:) - v2(:)))
+end function max_diff
+
+
+end module vec_rev_mod

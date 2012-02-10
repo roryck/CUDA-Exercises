@@ -1,0 +1,71 @@
+program main
+  use cudafor
+  use vec_rev_mod, only : vec_rev_gpu, max_diff, vlen
+  implicit none
+
+  type(cudadeviceprop) :: prop   ! device properties
+  integer :: numdev, devnum      ! device count, and counter
+  integer :: idx                 ! generic index var
+  integer :: ierr                ! to hold return error codes
+
+  integer, parameter :: blocksPerGrid = 128   ! number of blocks in 1d grid
+  integer, parameter :: threadsPerBlock = 64  ! number of threads in 1d block
+
+  integer, allocatable :: hvec1(:), hvec2(:)         ! data arrays on host
+  integer, allocatable, device :: dvec1(:), dvec2(:) ! data arrays on device
+
+  ! allocate host vectors
+  allocate(hvec1(vlen))
+  allocate(hvec2(vlen))
+
+  ! allocate device vectors
+  allocate(dvec1(vlen))
+  allocate(dvec2(vlen))
+
+  ! print out some device info
+  ierr = cudaGetDeviceCount(numdev)
+  devnum = 1
+  ierr = cudaSetDevice(devnum)
+  ierr = cudaGetDeviceProperties(prop, devnum)
+  print *, "----------------------------------------------"
+  write(*,'(1x,A17,1x,I1,1X,A20)') "Found", numdev, "CUDA capable devices"
+  write(*,'(1x,A17,1x,A30)') "Using device:", prop%name(1:30)
+  write(*,'(1x,A17,1x,I4)') "Multiprocessors:", prop%multiProcessorCount
+  write(*,'(1x,A17,1x,F6.1,1x,A4)') "Clock Rate:", prop%clockRate/1e3, "MHz"
+  write(*,'(1x,A17,1x,F6.1,1x,A4)') "Global Memory:", prop%totalGlobalMem/1048576.0, "MB"
+
+  ! initialize host vectors
+  do idx=1,vlen
+    hvec1(idx) = idx
+    hvec2(idx) = 0
+  end do
+
+  ! copy data to the GPU
+  dvec1 = hvec1
+
+  ! reverse the vector on the GPU
+  call vec_rev_gpu<<<blocksPerGrid, threadsPerBlock>>>(dvec1, dvec2)
+
+  ! copy the results back to the cpu
+  hvec2 = dvec2
+
+  ! print out the host vector sum if the arrays are small
+  if(vlen .le. 10) then
+    print *, "Input:  ", hvec1
+    print *, "Output: ", hvec2
+  end if
+
+  ! print out results check, this should be zero
+  print *, "----------------------------------------------"
+  print *, " Max difference between Input and Output: "
+  print *, "   expected result:   ", vlen-1
+  print *, "   calculated result: ", max_diff(hvec1, hvec2)
+  print *, "----------------------------------------------"
+  
+  ! deallocate memory on device and host
+  deallocate(hvec1)
+  deallocate(hvec2)
+  deallocate(dvec1)
+  deallocate(dvec2)
+
+end program main
