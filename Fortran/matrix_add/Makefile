@@ -1,6 +1,6 @@
 FC        = pgfortran
 FFLAGS    = -O2 -DDEBUG
-CUDAFLAGS = $(FFLAGS) -Minfo=accel -Mcuda -ta=nvidia,cuda3.2
+CUDAFLAGS = $(FFLAGS) -Minfo=accel -Mcuda -ta=nvidia
 LDFLAGS   = -Mcuda
 OBJ       = main.o
 
